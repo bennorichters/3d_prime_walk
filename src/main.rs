@@ -1,3 +1,7 @@
+use std::fs::File;
+
+use image::{codecs::gif::GifEncoder, Delay, Frame, ImageBuffer};
+
 fn main() {
     let center = Point3D {
         x: 0.0,
@@ -13,7 +17,9 @@ fn main() {
     let dots = walk(steps);
     show_extremes(&dots);
 
+    let mut frames = Vec::new();
     for a in 0..360 {
+        println!("{}", a);
         let azimuth = a as f64 * std::f64::consts::PI / 180.0;
         let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
         let dot2ds = map_to_dot2d(
@@ -25,10 +31,21 @@ fn main() {
             focal_length,
             gradient,
         );
-        let filename = format!("p{:04}.png", a);
-        println!("{}", filename);
-        image(dot2ds, filename);
+        let imgbuf = image(dot2ds);
+        let rgba: image::RgbaImage = image::DynamicImage::ImageRgb8(imgbuf).to_rgba8();
+        frames.push(Frame::from_parts(
+            rgba,
+            0,
+            0,
+            Delay::from_numer_denom_ms(100, 1),
+        ));
     }
+
+    let file = File::create("output.gif").unwrap();
+    let mut encoder = GifEncoder::new(file);
+
+    let _ = encoder.encode_frames(frames);
+    drop(encoder);
 }
 
 fn show_extremes(dots: &[Point3D]) {
@@ -96,7 +113,7 @@ fn map_to_dot2d(
     dot2ds
 }
 
-fn image(dot2ds: Vec<Dot2D>, filename: String) {
+fn image(dot2ds: Vec<Dot2D>) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
     let size = 500;
     let half_size = (size / 2) as i16;
     let mut imgbuf = image::ImageBuffer::new(size, size);
@@ -111,7 +128,7 @@ fn image(dot2ds: Vec<Dot2D>, filename: String) {
         }
     }
 
-    imgbuf.save(filename).unwrap();
+    imgbuf
 }
 
 #[derive(Debug)]
