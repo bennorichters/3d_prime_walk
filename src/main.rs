@@ -31,9 +31,9 @@ fn main() {
         let azimuth = 0.0;
         let elevation = a as f64 * PI / 180.0;
 
-        let (viewpoint, rotation) = orbit(center, radius, azimuth, elevation);
+        let (camera_pos, rotation) = orbit(center, radius, azimuth, elevation);
 
-        let dot2ds = map_to_dot2d(&dots, viewpoint, rotation, focal_length);
+        let dot2ds = map_to_dot2d(&dots, camera_pos, rotation, focal_length);
         let imgbuf = image(dot2ds);
 
         let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
@@ -69,17 +69,17 @@ where
 
 fn map_to_dot2d(
     dots: &[Dot3D],
-    viewpoint: Point3D,
+    canera_pos: Point3D,
     rotation: [[f64; 3]; 3],
     focal_length: f64,
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
-        let coord_option = project_with_rotation(&dot.point, viewpoint, rotation, focal_length);
+        let coord_option = project_with_rotation(&dot.point, canera_pos, rotation, focal_length);
         if let Some(coord) = coord_option {
             let x = coord[0].round() as i16;
             let y = coord[1].round() as i16;
-            let distance = viewpoint.distance_to(&dot.point);
+            let distance = canera_pos.distance_to(&dot.point);
 
             let index_option = dot2ds.iter().position(|e| e.x == x && e.y == y);
             let mut to_push = true;
