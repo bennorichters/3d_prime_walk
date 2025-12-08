@@ -74,7 +74,7 @@ fn map_to_dot2d(
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
-        let (viewpoint, coord_option) = orbit_project(
+        let (viewpoint, coord_option) = orbit(
             &dot.point,
             center,
             radius,
@@ -339,7 +339,7 @@ fn project_with_rotation(
     Some([focal_length * x / z, focal_length * y / z])
 }
 
-fn orbit_project(
+fn orbit(
     point: &Point3D,
     target: Point3D,
     radius: f64,
