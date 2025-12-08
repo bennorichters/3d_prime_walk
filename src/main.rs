@@ -1,21 +1,34 @@
-// #![allow(dead_code)]
-
 fn main() {
-    let viewpoint = Point3D {
+    let center = Point3D {
         x: 0.0,
         y: 0.0,
-        z: -100.0,
+        z: 0.0,
     };
-    let rotation = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+    let radius = 150.0;
+    let elevation = 0.0;
     let focal_length = 100.0;
 
     let steps = 10_000;
-    let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
 
     let dots = walk(steps);
     show_extremes(&dots);
-    let dot2ds = map_to_dot2d(viewpoint, rotation, focal_length, dots, gradient);
-    image(dot2ds);
+
+    for a in 0..360 {
+        let azimuth = a as f64 * std::f64::consts::PI / 180.0;
+        let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
+        let dot2ds = map_to_dot2d(
+            &dots,
+            center,
+            radius,
+            azimuth,
+            elevation,
+            focal_length,
+            gradient,
+        );
+        let filename = format!("p{:04}.png", a);
+        println!("{}", filename);
+        image(dot2ds, filename);
+    }
 }
 
 fn show_extremes(dots: &[Point3D]) {
@@ -41,20 +54,23 @@ where
 }
 
 fn map_to_dot2d(
-    viewpoint: Point3D,
-    rotation: [[f64; 3]; 3],
+    dots: &[Point3D],
+    center: Point3D,
+    radius: f64,
+    azimmuth: f64,
+    elevation: f64,
     focal_length: f64,
-    dots: Vec<Point3D>,
     mut gradient: ColorGradient,
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
         let color = gradient.next().unwrap();
-        let coord_option = project_with_rotation(dot, viewpoint, rotation, focal_length);
+        let (viewpoint, coord_option) =
+            orbit_project(dot, center, radius, azimmuth, elevation, focal_length);
         if let Some(coord) = coord_option {
             let x = coord[0].round() as i16;
             let y = coord[1].round() as i16;
-            let distance = viewpoint.distance_to(&dot);
+            let distance = viewpoint.distance_to(dot);
 
             let index_option = dot2ds.iter().position(|e| e.x == x && e.y == y);
             let mut to_push = true;
@@ -80,7 +96,7 @@ fn map_to_dot2d(
     dot2ds
 }
 
-fn image(dot2ds: Vec<Dot2D>) {
+fn image(dot2ds: Vec<Dot2D>, filename: String) {
     let size = 500;
     let half_size = (size / 2) as i16;
     let mut imgbuf = image::ImageBuffer::new(size, size);
@@ -95,7 +111,7 @@ fn image(dot2ds: Vec<Dot2D>) {
         }
     }
 
-    imgbuf.save("test.png").unwrap();
+    imgbuf.save(filename).unwrap();
 }
 
 #[derive(Debug)]
@@ -274,7 +290,7 @@ impl Point3D {
 }
 
 fn project_with_rotation(
-    point: Point3D,
+    point: &Point3D,
     camera_pos: Point3D,
     rotation: [[f64; 3]; 3],
     focal_length: f64,
@@ -299,14 +315,13 @@ fn project_with_rotation(
 }
 
 fn orbit_project(
-    point: Point3D,
+    point: &Point3D,
     target: Point3D,
     radius: f64,
     azimuth: f64,   // horizontal angle (radians)
     elevation: f64, // vertical angle (radians)
     focal_length: f64,
-) -> Option<[f64; 2]> {
-    // Calculate camera position on sphere around target
+) -> (Point3D, Option<[f64; 2]>) {
     let cam_x = target.x + radius * elevation.cos() * azimuth.cos();
     let cam_y = target.y + radius * elevation.sin();
     let cam_z = target.z + radius * elevation.cos() * azimuth.sin();
@@ -344,14 +359,8 @@ fn orbit_project(
     // Rotation matrix (rows are right, up, forward)
     let rotation = [[r[0], r[1], r[2]], [u[0], u[1], u[2]], [f[0], f[1], f[2]]];
 
-    project_with_rotation(point, camera_pos, rotation, focal_length)
+    (
+        camera_pos,
+        project_with_rotation(point, camera_pos, rotation, focal_length),
+    )
 }
-
-// let projected = orbit_project(
-//     [1.0, 2.0, 3.0],  // point to project
-//     [0.0, 0.0, 0.0],  // orbit center
-//     10.0,              // radius
-//     angle,             // animate this 0..2π to orbit
-//     0.3,               // slight elevation
-//     1.0,               // focal length
-// );
