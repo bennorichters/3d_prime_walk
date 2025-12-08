@@ -1,6 +1,8 @@
-use std::fs::File;
+use std::{f64::consts::PI, fs::File};
 
-use image::{codecs::gif::GifEncoder, Delay, Frame, ImageBuffer};
+use image::{DynamicImage, ImageBuffer, Rgb};
+
+use gif::{Encoder, Frame, Repeat};
 
 fn main() {
     let center = Point3D {
@@ -8,50 +10,42 @@ fn main() {
         y: 0.0,
         z: 0.0,
     };
-    let radius = 150.0;
-    let elevation = 0.0;
-    let focal_length = 100.0;
-
+    let radius = 100.0;
+    // let elevation = 35.0;
+    let focal_length = 80.0;
     let steps = 10_000;
+    let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
+    let size = 500;
+    let delay = 4;
 
-    let dots = walk(steps);
+    let dots = walk(steps, gradient);
+
     show_extremes(&dots);
 
-    let mut frames = Vec::new();
+    let file = File::create("output.gif").unwrap();
+    let mut encoder = Encoder::new(file, size as u16, size as u16, &[]).unwrap();
+    encoder.set_repeat(Repeat::Infinite).unwrap();
+
     for a in 0..360 {
         println!("{}", a);
-        let azimuth = a as f64 * std::f64::consts::PI / 180.0;
-        let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
-        let dot2ds = map_to_dot2d(
-            &dots,
-            center,
-            radius,
-            azimuth,
-            elevation,
-            focal_length,
-            gradient,
-        );
+        let azimuth = 0.0;
+        let elevation = a as f64 * PI / 180.0;
+        let dot2ds = map_to_dot2d(&dots, center, radius, azimuth, elevation, focal_length);
         let imgbuf = image(dot2ds);
-        let rgba: image::RgbaImage = image::DynamicImage::ImageRgb8(imgbuf).to_rgba8();
-        frames.push(Frame::from_parts(
-            rgba,
-            0,
-            0,
-            Delay::from_numer_denom_ms(100, 1),
-        ));
+
+        let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
+        let mut frame = Frame::from_rgba_speed(size as u16, size as u16, &mut rgba.into_raw(), 10);
+        frame.delay = delay; 
+        encoder.write_frame(&frame).unwrap();
     }
 
-    let file = File::create("output.gif").unwrap();
-    let mut encoder = GifEncoder::new(file);
-
-    let _ = encoder.encode_frames(frames);
     drop(encoder);
 }
 
-fn show_extremes(dots: &[Point3D]) {
-    let (min_x, max_x) = extremes(dots, |e| e.x);
-    let (min_y, max_y) = extremes(dots, |e| e.y);
-    let (min_z, max_z) = extremes(dots, |e| e.z);
+fn show_extremes(dots: &[Dot3D]) {
+    let (min_x, max_x) = extremes(dots, |e| e.point.x);
+    let (min_y, max_y) = extremes(dots, |e| e.point.y);
+    let (min_z, max_z) = extremes(dots, |e| e.point.z);
 
     println!(
         "({}, {}, {}), ({}, {}, {})",
@@ -59,11 +53,11 @@ fn show_extremes(dots: &[Point3D]) {
     );
 }
 
-fn extremes<F>(dots: &[Point3D], f: F) -> (f64, f64)
+fn extremes<F>(dots: &[Dot3D], f: F) -> (f64, f64)
 where
-    F: Fn(&&Point3D) -> f64,
+    F: Fn(&&Dot3D) -> f64,
 {
-    let compare = |a: &&Point3D, b: &&Point3D| f(a).total_cmp(&f(b));
+    let compare = |a: &&Dot3D, b: &&Dot3D| f(a).total_cmp(&f(b));
     let min = dots.iter().min_by(compare).unwrap();
     let max = dots.iter().max_by(compare).unwrap();
 
@@ -71,23 +65,27 @@ where
 }
 
 fn map_to_dot2d(
-    dots: &[Point3D],
+    dots: &[Dot3D],
     center: Point3D,
     radius: f64,
     azimmuth: f64,
     elevation: f64,
     focal_length: f64,
-    mut gradient: ColorGradient,
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
-        let color = gradient.next().unwrap();
-        let (viewpoint, coord_option) =
-            orbit_project(dot, center, radius, azimmuth, elevation, focal_length);
+        let (viewpoint, coord_option) = orbit_project(
+            &dot.point,
+            center,
+            radius,
+            azimmuth,
+            elevation,
+            focal_length,
+        );
         if let Some(coord) = coord_option {
             let x = coord[0].round() as i16;
             let y = coord[1].round() as i16;
-            let distance = viewpoint.distance_to(dot);
+            let distance = viewpoint.distance_to(&dot.point);
 
             let index_option = dot2ds.iter().position(|e| e.x == x && e.y == y);
             let mut to_push = true;
@@ -100,6 +98,7 @@ fn map_to_dot2d(
                 }
             }
 
+            let color = dot.color;
             if to_push {
                 dot2ds.push(Dot2D {
                     x,
@@ -113,10 +112,10 @@ fn map_to_dot2d(
     dot2ds
 }
 
-fn image(dot2ds: Vec<Dot2D>) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
+fn image(dot2ds: Vec<Dot2D>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
     let size = 500;
     let half_size = (size / 2) as i16;
-    let mut imgbuf = image::ImageBuffer::new(size, size);
+    let mut imgbuf = ImageBuffer::new(size, size);
 
     for d in dot2ds {
         if d.x >= -half_size && d.x < half_size && d.y >= -half_size && d.y < half_size {
@@ -124,7 +123,7 @@ fn image(dot2ds: Vec<Dot2D>) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
             let y = (half_size + d.y) as u32;
 
             let pixel = imgbuf.get_pixel_mut(x, y);
-            *pixel = image::Rgb([d.color.0, d.color.1, d.color.2]);
+            *pixel = Rgb([d.color.0, d.color.1, d.color.2]);
         }
     }
 
@@ -214,7 +213,7 @@ impl Iterator for ColorGradient {
 
 impl ExactSizeIterator for ColorGradient {}
 
-fn walk(steps: usize) -> Vec<Point3D> {
+fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Dot3D> {
     let mut result = vec![];
 
     let mut x = 0;
@@ -232,10 +231,14 @@ fn walk(steps: usize) -> Vec<Point3D> {
             p = primes.next().unwrap();
         }
 
-        result.push(Point3D {
-            x: x as f64,
-            y: y as f64,
-            z: z as f64,
+        let color = gradient.next().unwrap();
+        result.push(Dot3D {
+            point: Point3D {
+                x: x as f64,
+                y: y as f64,
+                z: z as f64,
+            },
+            color,
         });
 
         x += dir[0];
@@ -291,7 +294,7 @@ impl Primes {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Point3D {
+struct Point3D {
     pub x: f64,
     pub y: f64,
     pub z: f64,
@@ -304,6 +307,11 @@ impl Point3D {
         let dz = other.z - self.z;
         (dx * dx + dy * dy + dz * dz).sqrt()
     }
+}
+
+struct Dot3D {
+    point: Point3D,
+    color: (u8, u8, u8),
 }
 
 fn project_with_rotation(
