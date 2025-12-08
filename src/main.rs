@@ -30,12 +30,15 @@ fn main() {
         println!("{}", a);
         let azimuth = 0.0;
         let elevation = a as f64 * PI / 180.0;
-        let dot2ds = map_to_dot2d(&dots, center, radius, azimuth, elevation, focal_length);
+
+        let (viewpoint, rotation) = orbit(center, radius, azimuth, elevation);
+
+        let dot2ds = map_to_dot2d(&dots, viewpoint, rotation, focal_length);
         let imgbuf = image(dot2ds);
 
         let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
         let mut frame = Frame::from_rgba_speed(size as u16, size as u16, &mut rgba.into_raw(), 10);
-        frame.delay = delay; 
+        frame.delay = delay;
         encoder.write_frame(&frame).unwrap();
     }
 
@@ -66,22 +69,13 @@ where
 
 fn map_to_dot2d(
     dots: &[Dot3D],
-    center: Point3D,
-    radius: f64,
-    azimmuth: f64,
-    elevation: f64,
+    viewpoint: Point3D,
+    rotation: [[f64; 3]; 3],
     focal_length: f64,
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
-        let (viewpoint, coord_option) = orbit(
-            &dot.point,
-            center,
-            radius,
-            azimmuth,
-            elevation,
-            focal_length,
-        );
+        let coord_option = project_with_rotation(&dot.point, viewpoint, rotation, focal_length);
         if let Some(coord) = coord_option {
             let x = coord[0].round() as i16;
             let y = coord[1].round() as i16;
@@ -340,13 +334,11 @@ fn project_with_rotation(
 }
 
 fn orbit(
-    point: &Point3D,
     target: Point3D,
     radius: f64,
     azimuth: f64,   // horizontal angle (radians)
     elevation: f64, // vertical angle (radians)
-    focal_length: f64,
-) -> (Point3D, Option<[f64; 2]>) {
+) -> (Point3D, [[f64; 3]; 3]) {
     let cam_x = target.x + radius * elevation.cos() * azimuth.cos();
     let cam_y = target.y + radius * elevation.sin();
     let cam_z = target.z + radius * elevation.cos() * azimuth.sin();
@@ -384,8 +376,5 @@ fn orbit(
     // Rotation matrix (rows are right, up, forward)
     let rotation = [[r[0], r[1], r[2]], [u[0], u[1], u[2]], [f[0], f[1], f[2]]];
 
-    (
-        camera_pos,
-        project_with_rotation(point, camera_pos, rotation, focal_length),
-    )
+    (camera_pos, rotation)
 }
