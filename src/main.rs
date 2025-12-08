@@ -4,7 +4,7 @@ fn main() {
     let viewpoint = Point3D {
         x: 0.0,
         y: 0.0,
-        z: -50.0,
+        z: -100.0,
     };
     let rotation = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
     let focal_length = 100.0;
@@ -13,8 +13,31 @@ fn main() {
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
 
     let dots = walk(steps);
+    show_extremes(&dots);
     let dot2ds = map_to_dot2d(viewpoint, rotation, focal_length, dots, gradient);
     image(dot2ds);
+}
+
+fn show_extremes(dots: &[Dot]) {
+    let (min_x, max_x) = extremes(dots, |e| e.x);
+    let (min_y, max_y) = extremes(dots, |e| e.y);
+    let (min_z, max_z) = extremes(dots, |e| e.z);
+
+    println!(
+        "({}, {}, {}), ({}, {}, {})",
+        min_x, min_y, min_z, max_x, max_y, max_z
+    );
+}
+
+fn extremes<F>(dots: &[Dot], f: F) -> (f64, f64)
+where
+    F: Fn(Point3D) -> f64,
+{
+    let compare = |a: &&Dot, b: &&Dot| f(a.point).total_cmp(&f(b.point));
+    let min = dots.iter().min_by(compare).unwrap();
+    let max = dots.iter().max_by(compare).unwrap();
+
+    (f(min.point), f(max.point))
 }
 
 fn map_to_dot2d(
