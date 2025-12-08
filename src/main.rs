@@ -10,9 +10,20 @@ fn main() {
     let focal_length = 100.0;
 
     let steps = 10_000;
-    let dots = walk(steps);
-    let mut gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
+    let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
 
+    let dots = walk(steps);
+    let dot2ds = map_to_dot2d(viewpoint, rotation, focal_length, dots, gradient);
+    image(dot2ds);
+}
+
+fn map_to_dot2d(
+    viewpoint: Point3D,
+    rotation: [[f64; 3]; 3],
+    focal_length: f64,
+    dots: Vec<Dot>,
+    mut gradient: ColorGradient,
+) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
         let color = gradient.next().unwrap();
@@ -43,8 +54,7 @@ fn main() {
             }
         }
     }
-
-    image(dot2ds);
+    dot2ds
 }
 
 fn image(dot2ds: Vec<Dot2D>) {
