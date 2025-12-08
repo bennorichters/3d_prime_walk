@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+// #![allow(dead_code)]
 
 fn main() {
     let viewpoint = Point3D {
@@ -18,7 +18,7 @@ fn main() {
     image(dot2ds);
 }
 
-fn show_extremes(dots: &[Dot]) {
+fn show_extremes(dots: &[Point3D]) {
     let (min_x, max_x) = extremes(dots, |e| e.x);
     let (min_y, max_y) = extremes(dots, |e| e.y);
     let (min_z, max_z) = extremes(dots, |e| e.z);
@@ -29,32 +29,32 @@ fn show_extremes(dots: &[Dot]) {
     );
 }
 
-fn extremes<F>(dots: &[Dot], f: F) -> (f64, f64)
+fn extremes<F>(dots: &[Point3D], f: F) -> (f64, f64)
 where
-    F: Fn(Point3D) -> f64,
+    F: Fn(&&Point3D) -> f64,
 {
-    let compare = |a: &&Dot, b: &&Dot| f(a.point).total_cmp(&f(b.point));
+    let compare = |a: &&Point3D, b: &&Point3D| f(a).total_cmp(&f(b));
     let min = dots.iter().min_by(compare).unwrap();
     let max = dots.iter().max_by(compare).unwrap();
 
-    (f(min.point), f(max.point))
+    (f(&min), f(&max))
 }
 
 fn map_to_dot2d(
     viewpoint: Point3D,
     rotation: [[f64; 3]; 3],
     focal_length: f64,
-    dots: Vec<Dot>,
+    dots: Vec<Point3D>,
     mut gradient: ColorGradient,
 ) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
         let color = gradient.next().unwrap();
-        let coord_option = project_with_rotation(dot.point, viewpoint, rotation, focal_length);
+        let coord_option = project_with_rotation(dot, viewpoint, rotation, focal_length);
         if let Some(coord) = coord_option {
             let x = coord[0].round() as i16;
             let y = coord[1].round() as i16;
-            let distance = viewpoint.distance_to(&dot.point);
+            let distance = viewpoint.distance_to(&dot);
 
             let index_option = dot2ds.iter().position(|e| e.x == x && e.y == y);
             let mut to_push = true;
@@ -181,20 +181,12 @@ impl Iterator for ColorGradient {
 
 impl ExactSizeIterator for ColorGradient {}
 
-#[derive(Debug)]
-struct Dot {
-    point: Point3D,
-    color: (u8, u8, u8),
-}
-
-fn walk(steps: usize) -> Vec<Dot> {
+fn walk(steps: usize) -> Vec<Point3D> {
     let mut result = vec![];
 
     let mut x = 0;
     let mut y = 0;
     let mut z = 0;
-
-    let mut gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
 
     let mut dir_it = DirIterator { index: 0 };
 
@@ -207,13 +199,11 @@ fn walk(steps: usize) -> Vec<Dot> {
             p = primes.next().unwrap();
         }
 
-        let color = gradient.next().unwrap();
-        let point = Point3D {
+        result.push(Point3D {
             x: x as f64,
             y: y as f64,
             z: z as f64,
-        };
-        result.push(Dot { point, color });
+        });
 
         x += dir[0];
         y += dir[1];
