@@ -6,13 +6,12 @@ pub struct Tuple3D {
 }
 
 impl Tuple3D {
-    pub fn coordinate_distance(&self, other: &Tuple3D) -> f64 {
+    pub fn coordinate_squared_distance(&self, other: &Tuple3D) -> f64 {
         let dx = other.x - self.x;
         let dy = other.y - self.y;
         let dz = other.z - self.z;
 
-        // TODO: sqrt not necessary for purpose
-        (dx * dx + dy * dy + dz * dz).sqrt()
+        dx * dx + dy * dy + dz * dz
     }
 
     fn dot(&self, other: &Tuple3D) -> f64 {
@@ -61,18 +60,22 @@ pub struct Plane {
 
 impl Plane {
     pub fn intersect(&self, coord1: &Tuple3D, coord2: &Tuple3D) -> Option<(f64, f64)> {
-        let n = self.vector1.cross(&self.vector2); // TODO: only once
-        let d = coord2.sub(coord1);
+        let n = self.vector1.cross(&self.vector2);
 
-        let denom = d.dot(&n);
-        if denom.abs() < 1e-10 {
-            return None; // parallel
+        let dist1 = coord1.sub(&self.coordinate).dot(&n);
+        let dist2 = coord2.sub(&self.coordinate).dot(&n);
+
+        // Only proceed if points are strictly on opposite sides
+        if dist1 * dist2 < 0.0 {
+            return None;
         }
 
-        let t = self.coordinate.sub(coord1).dot(&n) / denom;
+        let d = coord2.sub(coord1);
+        let denom = d.dot(&n);
+        let t = -dist1 / denom;
         let q = coord1.add(&d.scale(t));
-        let diff = q.sub(&self.coordinate);
 
+        let diff = q.sub(&self.coordinate);
         let u = diff.dot(&self.vector1) / self.vector1.dot(&self.vector1);
         let v = diff.dot(&self.vector2) / self.vector2.dot(&self.vector2);
 

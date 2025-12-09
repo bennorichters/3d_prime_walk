@@ -10,27 +10,27 @@ use image::{DynamicImage, ImageBuffer, Rgb};
 use gif::{Encoder, Frame, Repeat};
 
 use crate::{
-    camera::{Projection, ProjectionIterator},
+    camera::{PrimeMeridian, Projection},
     space::Tuple3D,
 };
 
 fn main() {
-    let steps = 10_000;
+    let steps = 75_000;
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
     let size = 500;
     let delay = 4;
 
     let dots = walk(steps, gradient);
-
     show_extremes(&dots);
 
     let file = File::create("output.gif").unwrap();
     let mut encoder = Encoder::new(file, size as u16, size as u16, &[]).unwrap();
     encoder.set_repeat(Repeat::Infinite).unwrap();
 
-    let projection_it = ProjectionIterator::new();
+    let projection_it = PrimeMeridian::new();
+
     for (c, projection) in projection_it.enumerate() {
-        println!("{}, {:?}", c, projection.camera);
+        println!("{}", c);
 
         let dot2ds = map_to_dot2d(&dots, projection);
         let imgbuf = image(dot2ds);
