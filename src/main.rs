@@ -1,18 +1,20 @@
-use std::{f64::consts::PI, fs::File};
+#![allow(dead_code)]
+
+mod camera;
+mod space;
+
+use std::fs::File;
 
 use image::{DynamicImage, ImageBuffer, Rgb};
 
 use gif::{Encoder, Frame, Repeat};
 
+use crate::{
+    camera::{Projection, ProjectionIterator},
+    space::Tuple3D,
+};
+
 fn main() {
-    let center = Point3D {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    };
-    let radius = 100.0;
-    // let elevation = 35.0;
-    let focal_length = 80.0;
     let steps = 10_000;
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
     let size = 500;
@@ -26,14 +28,11 @@ fn main() {
     let mut encoder = Encoder::new(file, size as u16, size as u16, &[]).unwrap();
     encoder.set_repeat(Repeat::Infinite).unwrap();
 
-    for a in 0..360 {
-        println!("{}", a);
-        let azimuth = 0.0;
-        let elevation = a as f64 * PI / 180.0;
+    let projection_it = ProjectionIterator::new();
+    for (c, projection) in projection_it.enumerate() {
+        println!("{}, {:?}", c, projection.camera);
 
-        let (camera_pos, rotation) = orbit(center, radius, azimuth, elevation);
-
-        let dot2ds = map_to_dot2d(&dots, camera_pos, rotation, focal_length);
+        let dot2ds = map_to_dot2d(&dots, projection);
         let imgbuf = image(dot2ds);
 
         let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
@@ -46,9 +45,9 @@ fn main() {
 }
 
 fn show_extremes(dots: &[Dot3D]) {
-    let (min_x, max_x) = extremes(dots, |e| e.point.x);
-    let (min_y, max_y) = extremes(dots, |e| e.point.y);
-    let (min_z, max_z) = extremes(dots, |e| e.point.z);
+    let (min_x, max_x) = extremes(dots, |e| e.coordinate.x);
+    let (min_y, max_y) = extremes(dots, |e| e.coordinate.y);
+    let (min_z, max_z) = extremes(dots, |e| e.coordinate.z);
 
     println!(
         "({}, {}, {}), ({}, {}, {})",
@@ -67,19 +66,13 @@ where
     (f(&min), f(&max))
 }
 
-fn map_to_dot2d(
-    dots: &[Dot3D],
-    canera_pos: Point3D,
-    rotation: [[f64; 3]; 3],
-    focal_length: f64,
-) -> Vec<Dot2D> {
+fn map_to_dot2d(dots: &[Dot3D], projection: Projection) -> Vec<Dot2D> {
     let mut dot2ds: Vec<Dot2D> = vec![];
     for dot in dots {
-        let coord_option = project_with_rotation(&dot.point, canera_pos, rotation, focal_length);
-        if let Some(coord) = coord_option {
-            let x = coord[0].round() as i16;
-            let y = coord[1].round() as i16;
-            let distance = canera_pos.distance_to(&dot.point);
+        let dist_coord_option = projection.project(&dot.coordinate);
+        if let Some((distance, coord)) = dist_coord_option {
+            let x = coord.0.round() as i16;
+            let y = coord.1.round() as i16;
 
             let index_option = dot2ds.iter().position(|e| e.x == x && e.y == y);
             let mut to_push = true;
@@ -227,7 +220,7 @@ fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Dot3D> {
 
         let color = gradient.next().unwrap();
         result.push(Dot3D {
-            point: Point3D {
+            coordinate: Tuple3D {
                 x: x as f64,
                 y: y as f64,
                 z: z as f64,
@@ -287,94 +280,7 @@ impl Primes {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
-struct Point3D {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-}
-
-impl Point3D {
-    fn distance_to(&self, other: &Point3D) -> f64 {
-        let dx = other.x - self.x;
-        let dy = other.y - self.y;
-        let dz = other.z - self.z;
-        (dx * dx + dy * dy + dz * dz).sqrt()
-    }
-}
-
 struct Dot3D {
-    point: Point3D,
+    coordinate: Tuple3D,
     color: (u8, u8, u8),
-}
-
-fn project_with_rotation(
-    point: &Point3D,
-    camera_pos: Point3D,
-    rotation: [[f64; 3]; 3],
-    focal_length: f64,
-) -> Option<[f64; 2]> {
-    // Translate
-    let t = [
-        point.x - camera_pos.x,
-        point.y - camera_pos.y,
-        point.z - camera_pos.z,
-    ];
-
-    // Rotate
-    let x = rotation[0][0] * t[0] + rotation[0][1] * t[1] + rotation[0][2] * t[2];
-    let y = rotation[1][0] * t[0] + rotation[1][1] * t[1] + rotation[1][2] * t[2];
-    let z = rotation[2][0] * t[0] + rotation[2][1] * t[1] + rotation[2][2] * t[2];
-
-    if z <= 0.0 {
-        return None;
-    }
-
-    Some([focal_length * x / z, focal_length * y / z])
-}
-
-fn orbit(
-    target: Point3D,
-    radius: f64,
-    azimuth: f64,   // horizontal angle (radians)
-    elevation: f64, // vertical angle (radians)
-) -> (Point3D, [[f64; 3]; 3]) {
-    let cam_x = target.x + radius * elevation.cos() * azimuth.cos();
-    let cam_y = target.y + radius * elevation.sin();
-    let cam_z = target.z + radius * elevation.cos() * azimuth.sin();
-    let camera_pos = Point3D {
-        x: cam_x,
-        y: cam_y,
-        z: cam_z,
-    };
-
-    // Calculate look-at rotation matrix
-    // Forward: camera -> target (normalized)
-    let forward = [target.x - cam_x, target.y - cam_y, target.z - cam_z];
-    let f_len = (forward[0].powi(2) + forward[1].powi(2) + forward[2].powi(2)).sqrt();
-    let f = [forward[0] / f_len, forward[1] / f_len, forward[2] / f_len];
-
-    // Up reference (world up)
-    let up = [0.0, 1.0, 0.0];
-
-    // Right: up × forward
-    let r = [
-        up[1] * f[2] - up[2] * f[1],
-        up[2] * f[0] - up[0] * f[2],
-        up[0] * f[1] - up[1] * f[0],
-    ];
-    let r_len = (r[0].powi(2) + r[1].powi(2) + r[2].powi(2)).sqrt();
-    let r = [r[0] / r_len, r[1] / r_len, r[2] / r_len];
-
-    // Recalculate up: forward × right
-    let u = [
-        f[1] * r[2] - f[2] * r[1],
-        f[2] * r[0] - f[0] * r[2],
-        f[0] * r[1] - f[1] * r[0],
-    ];
-
-    // Rotation matrix (rows are right, up, forward)
-    let rotation = [[r[0], r[1], r[2]], [u[0], u[1], u[2]], [f[0], f[1], f[2]]];
-
-    (camera_pos, rotation)
 }
