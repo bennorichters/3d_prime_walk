@@ -119,22 +119,21 @@ fn map_to_pixels2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
             let y = coord.1.round() as i16;
 
             let index_option = pixels2d.iter().position(|e| e.x == x && e.y == y);
-            let mut to_push = true;
             if let Some(index) = index_option {
                 let existing = &pixels2d[index];
                 if distance < existing.distance {
-                    pixels2d.remove(index);
-                } else {
-                    to_push = false;
+                    pixels2d[index] = Pixel2D {
+                        x,
+                        y,
+                        color: pixel.color,
+                        distance,
+                    };
                 }
-            }
-
-            let color = pixel.color;
-            if to_push {
+            } else {
                 pixels2d.push(Pixel2D {
                     x,
                     y,
-                    color,
+                    color: pixel.color,
                     distance,
                 });
             }
