@@ -66,7 +66,7 @@ impl Plane {
         let dist2 = coord2.sub(&self.coordinate).dot(&n);
 
         // Only proceed if points are strictly on opposite sides
-        if dist1 * dist2 < 0.0 {
+        if dist1 * dist2 >= 0.0 {
             return None;
         }
 

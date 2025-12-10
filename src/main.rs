@@ -12,7 +12,7 @@ use image::{DynamicImage, ImageBuffer, Rgb};
 use gif::{Encoder, Frame, Repeat};
 
 use crate::{
-    camera::{PrimeMeridian, Projection},
+    camera::*,
     color_gradient::ColorGradient,
     primes::Primes,
     space::Tuple3D,
@@ -31,8 +31,7 @@ fn main() {
     let mut encoder = Encoder::new(file, size as u16, size as u16, &[]).unwrap();
     encoder.set_repeat(Repeat::Infinite).unwrap();
 
-    let projection_it = PrimeMeridian::new();
-
+    let projection_it = EastWest::new();
     for (c, projection) in projection_it.enumerate() {
         println!("{}", c);
 

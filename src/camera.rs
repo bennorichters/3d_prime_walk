@@ -3,8 +3,8 @@ use std::f64::consts::PI;
 
 const FULL_CIRCLE: u16 = 360;
 const HALF_CIRCLE: u16 = 180;
-const CAMERA_RADIUS: f64 = 260.0;
-const SCREEN_RADIUS: f64 = 300.0;
+const CAMERA_RADIUS: f64 = 150.0;
+const SCREEN_RADIUS: f64 = 100.0;
 
 pub struct Projection {
     pub camera: Tuple3D,
@@ -99,31 +99,78 @@ impl Iterator for PrimeMeridian {
         let cos = rad.cos();
 
         let camera = Tuple3D {
-            y: sin * CAMERA_RADIUS,
             x: 0.0,
+            y: sin * CAMERA_RADIUS,
             z: cos * CAMERA_RADIUS,
         };
 
         let screen = Plane {
             coordinate: Tuple3D {
-                y: sin * SCREEN_RADIUS,
                 x: 0.0,
+                y: sin * SCREEN_RADIUS,
                 z: cos * SCREEN_RADIUS,
             },
             vector1: Tuple3D {
-                y: 0.0,
                 x: 1.0,
+                y: 0.0,
                 z: 0.0,
             },
             vector2: Tuple3D {
-                y: cos,
                 x: 0.0,
+                y: cos,
                 z: -sin,
             },
         };
 
         self.angle += 1;
 
+        Some(Projection { camera, screen })
+    }
+}
+
+pub struct EastWest {
+    x: i16,
+}
+
+impl EastWest {
+    pub fn new() -> Self {
+        EastWest { x: -50 }
+    }
+}
+
+impl Iterator for EastWest {
+    type Item = Projection;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.x == 350 {
+            return None;
+        }
+
+        let camera = Tuple3D {
+            x: self.x as f64,
+            y: 0.0,
+            z: -100.0,
+        };
+
+        let screen = Plane {
+            coordinate: Tuple3D {
+                x: self.x as f64,
+                y: 0.0,
+                z: -50.0,
+            },
+            vector1: Tuple3D {
+                x: -1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            vector2: Tuple3D {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+        };
+
+        self.x += 1;
         Some(Projection { camera, screen })
     }
 }
