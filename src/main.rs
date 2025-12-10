@@ -17,7 +17,7 @@ use crate::{
 };
 
 fn main() {
-    let steps = 75_000;
+    let steps = 10_000;
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
     let size = 500;
     let delay = 4;
@@ -199,8 +199,6 @@ impl Iterator for ColorGradient {
         (remaining, Some(remaining))
     }
 }
-
-impl ExactSizeIterator for ColorGradient {}
 
 fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Dot3D> {
     let mut result = vec![];
