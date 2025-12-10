@@ -5,46 +5,21 @@ mod color_gradient;
 mod primes;
 mod space;
 
-use std::fs::File;
+use minifb::{Key, Window, WindowOptions};
 
-use image::{DynamicImage, ImageBuffer, Rgb};
+use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tuple3D};
 
-use gif::{Encoder, Frame, Repeat};
-
-use crate::{
-    camera::*,
-    color_gradient::ColorGradient,
-    primes::Primes,
-    space::Tuple3D,
-};
+const SIZE: usize = 800;
+const HALF_SIZE: isize = SIZE as isize / 2;
 
 fn main() {
     let steps = 10_000;
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
-    let size = 500;
-    let delay = 4;
 
     let pixels = walk(steps, gradient);
     show_extremes(&pixels);
 
-    let file = File::create("output.gif").unwrap();
-    let mut encoder = Encoder::new(file, size as u16, size as u16, &[]).unwrap();
-    encoder.set_repeat(Repeat::Infinite).unwrap();
-
-    let projection_it = EastWest::new();
-    for (c, projection) in projection_it.enumerate() {
-        println!("{}", c);
-
-        let pixels2d = map_to_pixels2d(&pixels, projection);
-        let imgbuf = image(pixels2d);
-
-        let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
-        let mut frame = Frame::from_rgba_speed(size as u16, size as u16, &mut rgba.into_raw(), 10);
-        frame.delay = delay;
-        encoder.write_frame(&frame).unwrap();
-    }
-
-    drop(encoder);
+    image(pixels);
 }
 
 #[derive(Debug)]
@@ -109,54 +84,36 @@ where
     (f(&min), f(&max))
 }
 
-fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
-    let mut pixels2d: Vec<Pixel2D> = vec![];
+fn rgb(color: (u8, u8, u8)) -> u32 {
+    (color.0 as u32) << 16 | (color.1 as u32) << 8 | color.2 as u32
+}
+
+fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<u32> {
+    let mut pixels2d: Vec<u32> = vec![0; SIZE * SIZE];
+    let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
+
     for pixel3d in pixels3d {
         let dist_coord_option = projection.project(&pixel3d.coordinate);
         if let Some((distance, coord)) = dist_coord_option {
-            let x = coord.0.round() as i16;
-            let y = coord.1.round() as i16;
+            let ix = HALF_SIZE + coord.0.round() as isize;
+            let iy = HALF_SIZE + coord.1.round() as isize;
 
-            let index_option = pixels2d.iter().position(|e| e.x == x && e.y == y);
-            if let Some(index) = index_option {
-                let existing = &pixels2d[index];
-                if distance < existing.distance {
-                    pixels2d[index] = Pixel2D {
-                        x,
-                        y,
-                        color: pixel3d.color,
-                        distance,
-                    };
+            if ix >= 0 && iy >= 0 {
+                let x = ix as usize;
+                let y = iy as usize;
+
+                if x < SIZE && y < SIZE {
+                    let index = y * SIZE + x;
+                    if distance < distances[index] {
+                        pixels2d[index] = rgb(pixel3d.color);
+                        distances[index] = distance;
+                    }
                 }
-            } else {
-                pixels2d.push(Pixel2D {
-                    x,
-                    y,
-                    color: pixel3d.color,
-                    distance,
-                });
             }
         }
     }
+
     pixels2d
-}
-
-fn image(pixels2d: Vec<Pixel2D>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
-    let size = 500;
-    let half_size = (size / 2) as i16;
-    let mut imgbuf = ImageBuffer::new(size, size);
-
-    for d in pixels2d {
-        if d.x >= -half_size && d.x < half_size && d.y >= -half_size && d.y < half_size {
-            let x = (half_size + d.x) as u32;
-            let y = (half_size + d.y) as u32;
-
-            let pixel = imgbuf.get_pixel_mut(x, y);
-            *pixel = Rgb([d.color.0, d.color.1, d.color.2]);
-        }
-    }
-
-    imgbuf
 }
 
 fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
@@ -193,4 +150,30 @@ fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     }
 
     result
+}
+
+fn image(pixels: Vec<Pixel3D>) {
+    let mut projection_it = Equator::new();
+    let mut projection = projection_it.next().unwrap();
+
+    let mut pixels2d = map_to_pixels2d(&pixels, projection);
+
+    let mut window = Window::new("Test", SIZE, SIZE, WindowOptions::default()).unwrap();
+
+    window.update(); // Let window initialize
+
+    let mut needs_redraw = true;
+    while window.is_open() {
+        if window.is_key_down(Key::J) {
+            projection = projection_it.next().unwrap();
+            pixels2d = map_to_pixels2d(&pixels, projection);
+            needs_redraw = true;
+        }
+
+        if needs_redraw {
+            window.update_with_buffer(&pixels2d, SIZE, SIZE).unwrap();
+            needs_redraw = false;
+        }
+        window.update();
+    }
 }
