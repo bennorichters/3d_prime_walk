@@ -110,10 +110,10 @@ where
     (f(&min), f(&max))
 }
 
-fn map_to_pixels2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
+fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
     let mut pixels2d: Vec<Pixel2D> = vec![];
-    for pixel in pixels {
-        let dist_coord_option = projection.project(&pixel.coordinate);
+    for pixel3d in pixels3d {
+        let dist_coord_option = projection.project(&pixel3d.coordinate);
         if let Some((distance, coord)) = dist_coord_option {
             let x = coord.0.round() as i16;
             let y = coord.1.round() as i16;
@@ -125,7 +125,7 @@ fn map_to_pixels2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
                     pixels2d[index] = Pixel2D {
                         x,
                         y,
-                        color: pixel.color,
+                        color: pixel3d.color,
                         distance,
                     };
                 }
@@ -133,7 +133,7 @@ fn map_to_pixels2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
                 pixels2d.push(Pixel2D {
                     x,
                     y,
-                    color: pixel.color,
+                    color: pixel3d.color,
                     distance,
                 });
             }
