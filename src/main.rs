@@ -36,7 +36,7 @@ fn main() {
     for (c, projection) in projection_it.enumerate() {
         println!("{}", c);
 
-        let pixels2d = map_to_pixel2d(&pixels, projection);
+        let pixels2d = map_to_pixels2d(&pixels, projection);
         let imgbuf = image(pixels2d);
 
         let rgba = DynamicImage::ImageRgb8(imgbuf).to_rgba8();
@@ -70,7 +70,7 @@ where
     (f(&min), f(&max))
 }
 
-fn map_to_pixel2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
+fn map_to_pixels2d(pixels: &[Pixel3D], projection: Projection) -> Vec<Pixel2D> {
     let mut pixels2d: Vec<Pixel2D> = vec![];
     for pixel in pixels {
         let dist_coord_option = projection.project(&pixel.coordinate);
@@ -127,6 +127,11 @@ struct Pixel2D {
     y: i16,
     color: (u8, u8, u8),
     distance: f64,
+}
+
+struct Pixel3D {
+    coordinate: Tuple3D,
+    color: (u8, u8, u8),
 }
 
 static DIRS: &[[isize; 3]] = &[
@@ -190,9 +195,4 @@ fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     }
 
     result
-}
-
-struct Pixel3D {
-    coordinate: Tuple3D,
-    color: (u8, u8, u8),
 }
