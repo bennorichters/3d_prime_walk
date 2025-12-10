@@ -48,6 +48,46 @@ fn main() {
     drop(encoder);
 }
 
+#[derive(Debug)]
+struct Pixel2D {
+    x: i16,
+    y: i16,
+    color: (u8, u8, u8),
+    distance: f64,
+}
+
+struct Pixel3D {
+    coordinate: Tuple3D,
+    color: (u8, u8, u8),
+}
+
+static DIRS: &[[isize; 3]] = &[
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [0, 0, -1],
+];
+
+struct DirIterator {
+    index: usize,
+}
+
+impl Iterator for DirIterator {
+    type Item = [isize; 3];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let result = DIRS[self.index];
+        self.index += 1;
+        if self.index == DIRS.len() {
+            self.index = 0;
+        }
+
+        Some(result)
+    }
+}
+
 fn show_extremes(pixels: &[Pixel3D]) {
     let (min_x, max_x) = extremes(pixels, |e| e.coordinate.x);
     let (min_y, max_y) = extremes(pixels, |e| e.coordinate.y);
@@ -119,46 +159,6 @@ fn image(pixels2d: Vec<Pixel2D>) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
     }
 
     imgbuf
-}
-
-#[derive(Debug)]
-struct Pixel2D {
-    x: i16,
-    y: i16,
-    color: (u8, u8, u8),
-    distance: f64,
-}
-
-struct Pixel3D {
-    coordinate: Tuple3D,
-    color: (u8, u8, u8),
-}
-
-static DIRS: &[[isize; 3]] = &[
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1],
-    [-1, 0, 0],
-    [0, -1, 0],
-    [0, 0, -1],
-];
-
-struct DirIterator {
-    index: usize,
-}
-
-impl Iterator for DirIterator {
-    type Item = [isize; 3];
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let result = DIRS[self.index];
-        self.index += 1;
-        if self.index == DIRS.len() {
-            self.index = 0;
-        }
-
-        Some(result)
-    }
 }
 
 fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
