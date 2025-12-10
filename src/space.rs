@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub struct Tuple3D {
     pub x: f64,
     pub y: f64,
