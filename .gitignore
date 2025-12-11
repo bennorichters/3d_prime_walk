@@ -1,4 +1,2 @@
 /target
-
-*.png
-*.gif
+.DS_Store
