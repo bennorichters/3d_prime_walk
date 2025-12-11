@@ -12,7 +12,7 @@ use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tup
 
 pub const SIZE: usize = 800;
 const HALF_SIZE: isize = SIZE as isize / 2;
-const DEFAULT_STEPS: usize = 10_000;
+const DEFAULT_STEPS: usize = 25_000;
 
 fn main() {
     let steps = std::env::args()
