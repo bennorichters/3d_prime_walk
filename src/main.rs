@@ -51,14 +51,6 @@ fn main() {
     app::image(pixels);
 }
 
-#[derive(Debug)]
-struct Pixel2D {
-    x: i16,
-    y: i16,
-    color: (u8, u8, u8),
-    distance: f64,
-}
-
 pub struct Pixel3D {
     pub coordinate: Tuple3D,
     pub color: (u8, u8, u8),
