@@ -3,8 +3,6 @@ use std::f64::consts::PI;
 
 const FULL_CIRCLE: u16 = 360;
 const HALF_CIRCLE: u16 = 180;
-const CAMERA_RADIUS: f64 = 300.0;
-const SCREEN_RADIUS: f64 = 260.0;
 
 fn rad(angle: u16) -> f64 {
     (angle as f64 * PI) / HALF_CIRCLE as f64
@@ -31,13 +29,17 @@ impl Projection {
 pub struct Orbit {
     polar: u16,
     azimnuth: u16,
+    camera_radius: f64,
+    screen_radius: f64,
 }
 
 impl Orbit {
-    pub fn new() -> Self {
+    pub fn new(camera_radius: f64, screen_radius: f64) -> Self {
         Orbit {
             polar: 0,
             azimnuth: 0,
+            camera_radius,
+            screen_radius,
         }
     }
 
@@ -50,15 +52,15 @@ impl Orbit {
         let vec_z = a.cos() * p.cos();
 
         let camera = Tuple3D {
-            x: CAMERA_RADIUS * vec_x,
-            y: CAMERA_RADIUS * vec_y,
-            z: CAMERA_RADIUS * vec_z,
+            x: self.camera_radius * vec_x,
+            y: self.camera_radius * vec_y,
+            z: self.camera_radius * vec_z,
         };
 
         let screen_coordinate = Tuple3D {
-            x: SCREEN_RADIUS * vec_x,
-            y: SCREEN_RADIUS * vec_y,
-            z: SCREEN_RADIUS * vec_z,
+            x: self.screen_radius * vec_x,
+            y: self.screen_radius * vec_y,
+            z: self.screen_radius * vec_z,
         };
 
         let vector_u = Tuple3D {

@@ -12,7 +12,7 @@ impl PrimeWalkApp {
     fn new(pixels: Vec<Pixel3D>) -> Self {
         Self {
             pixels,
-            orbit: Orbit::new(),
+            orbit: Orbit::new(300.0, 260.0),
             texture: None,
         }
     }
