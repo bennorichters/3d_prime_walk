@@ -153,26 +153,31 @@ fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
 }
 
 fn image(pixels: Vec<Pixel3D>) {
-    let mut projection_it = Equator::new();
-    let mut projection = projection_it.next().unwrap();
-
-    let mut pixels2d = map_to_pixels2d(&pixels, projection);
+    let mut orbit = Orbit::new();
+    let projection = orbit.projection();
 
     let mut window = Window::new("Test", SIZE, SIZE, WindowOptions::default()).unwrap();
+    window.update();
 
-    window.update(); // Let window initialize
+    let pixels2d = map_to_pixels2d(&pixels, projection);
+    window.update_with_buffer(&pixels2d, SIZE, SIZE).unwrap();
 
-    let mut needs_redraw = true;
     while window.is_open() {
-        if window.is_key_down(Key::J) {
-            projection = projection_it.next().unwrap();
-            pixels2d = map_to_pixels2d(&pixels, projection);
-            needs_redraw = true;
-        }
+        let projection_option = if window.is_key_down(Key::J) {
+            Some(orbit.dec_polar())
+        } else if window.is_key_down(Key::K) {
+            Some(orbit.inc_polar())
+        } else if window.is_key_down(Key::H) {
+            Some(orbit.dec_azimuth())
+        } else if window.is_key_down(Key::L) {
+            Some(orbit.inc_azimuth())
+        } else {
+            None
+        };
 
-        if needs_redraw {
+        if let Some(projection) = projection_option {
+            let pixels2d = map_to_pixels2d(&pixels, projection);
             window.update_with_buffer(&pixels2d, SIZE, SIZE).unwrap();
-            needs_redraw = false;
         }
         window.update();
     }

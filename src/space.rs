@@ -54,18 +54,16 @@ impl Tuple3D {
 #[derive(Debug)]
 pub struct Plane {
     pub coordinate: Tuple3D,
-    pub vector1: Tuple3D,
-    pub vector2: Tuple3D,
+    pub vector_u: Tuple3D,
+    pub vector_v: Tuple3D,
 }
 
 impl Plane {
     pub fn intersect(&self, coord1: &Tuple3D, coord2: &Tuple3D) -> Option<(f64, f64)> {
-        let n = self.vector1.cross(&self.vector2);
+        let n = self.vector_u.cross(&self.vector_v);
 
         let dist1 = coord1.sub(&self.coordinate).dot(&n);
         let dist2 = coord2.sub(&self.coordinate).dot(&n);
-
-        // Only proceed if points are strictly on opposite sides
         if dist1 * dist2 >= 0.0 {
             return None;
         }
@@ -76,8 +74,8 @@ impl Plane {
         let q = coord1.add(&d.scale(t));
 
         let diff = q.sub(&self.coordinate);
-        let u = diff.dot(&self.vector1) / self.vector1.dot(&self.vector1);
-        let v = diff.dot(&self.vector2) / self.vector2.dot(&self.vector2);
+        let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
+        let v = diff.dot(&self.vector_v) / self.vector_v.dot(&self.vector_v);
 
         Some((u, v))
     }
@@ -95,12 +93,12 @@ mod tests {
                 y: 260.0,
                 z: 0.0,
             },
-            vector1: Tuple3D {
+            vector_u: Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
             },
-            vector2: Tuple3D {
+            vector_v: Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 1.0,
