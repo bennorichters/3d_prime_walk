@@ -19,6 +19,8 @@ Each step along the path is colored according to a gradient that transitions fro
 
 ## Visualization
 
+![3D Prime Walk Screenshot](assets/screenshot_01.png)
+
 The program projects the 3D walk onto a 2D screen using a sophisticated camera system with proper depth sorting, ensuring that closer points appear in front of more distant ones. The resulting image can be freely manipulated, allowing you to orbit around the structure and examine it from any angle.
 
 ## Interactive Controls
