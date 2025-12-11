@@ -30,16 +30,16 @@ pub struct Orbit {
     polar: u16,
     azimnuth: u16,
     camera_radius: f64,
-    screen_radius: f64,
+    focal_length: f64,
 }
 
 impl Orbit {
-    pub fn new(camera_radius: f64, screen_radius: f64) -> Self {
+    pub fn new(camera_radius: f64, focal_length: f64) -> Self {
         Orbit {
             polar: 0,
             azimnuth: 0,
             camera_radius,
-            screen_radius,
+            focal_length,
         }
     }
 
@@ -57,10 +57,11 @@ impl Orbit {
             z: self.camera_radius * vec_z,
         };
 
+        let screen_radius = self.camera_radius - self.focal_length;
         let screen_coordinate = Tuple3D {
-            x: self.screen_radius * vec_x,
-            y: self.screen_radius * vec_y,
-            z: self.screen_radius * vec_z,
+            x: screen_radius * vec_x,
+            y: screen_radius * vec_y,
+            z: screen_radius * vec_z,
         };
 
         let vector_u = Tuple3D {
