@@ -13,13 +13,41 @@ use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tup
 pub const SIZE: usize = 800;
 const HALF_SIZE: isize = SIZE as isize / 2;
 const DEFAULT_STEPS: usize = 25_000;
+const DEFAULT_START_COLOR: (u8, u8, u8) = (255, 0, 0); // Red
+const DEFAULT_END_COLOR: (u8, u8, u8) = (0, 0, 255); // Blue
+
+fn parse_color(s: &str) -> Option<(u8, u8, u8)> {
+    let parts: Vec<&str> = s.split(',').collect();
+    if parts.len() != 3 {
+        return None;
+    }
+
+    let r = parts[0].parse::<u8>().ok()?;
+    let g = parts[1].parse::<u8>().ok()?;
+    let b = parts[2].parse::<u8>().ok()?;
+
+    Some((r, g, b))
+}
 
 fn main() {
-    let steps = std::env::args()
-        .nth(1)
+    let args: Vec<String> = std::env::args().collect();
+
+    let steps = args
+        .get(1)
         .and_then(|arg| arg.parse::<usize>().ok())
         .unwrap_or(DEFAULT_STEPS);
-    let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
+
+    let start_color = args
+        .get(2)
+        .and_then(|arg| parse_color(arg))
+        .unwrap_or(DEFAULT_START_COLOR);
+
+    let end_color = args
+        .get(3)
+        .and_then(|arg| parse_color(arg))
+        .unwrap_or(DEFAULT_END_COLOR);
+
+    let gradient = ColorGradient::new(start_color, end_color, steps);
 
     let pixels = walk(steps, gradient);
     show_extremes(&pixels);

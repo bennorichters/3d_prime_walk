@@ -56,16 +56,27 @@ This project is written in Rust and requires a Rust toolchain to build.
 
 ### Running the Program
 ```bash
-# Run with default steps (25,000)
+# Run with defaults (25,000 steps, red to blue gradient)
 cargo run --release
 
 # Run with custom number of steps
 cargo run --release 10000
+
+# Run with custom gradient colors (format: R,G,B)
+cargo run --release 25000 0,255,0 255,0,255
+
+# Run with custom steps and start color only (end color uses default blue)
+cargo run --release 15000 255,255,0
 ```
 
 The `--release` flag is recommended for optimal performance when rendering the visualization.
 
-You can optionally specify the number of steps as a command-line argument. If no argument is provided, the program uses the default of 25,000 steps.
+#### Command-Line Arguments
+- **Argument 1** (optional): Number of steps (default: 25,000)
+- **Argument 2** (optional): Start color in R,G,B format (default: 255,0,0 - red)
+- **Argument 3** (optional): End color in R,G,B format (default: 0,0,255 - blue)
+
+Colors must be specified as three comma-separated values between 0-255 (e.g., `255,128,0` for orange).
 
 ## Technical Details
 
@@ -73,7 +84,7 @@ You can optionally specify the number of steps as a command-line argument. If no
 - **GUI Framework**: eframe/egui
 - **Default Steps**: 25,000 (configurable via command-line argument)
 - **Rendering Resolution**: 800x800 pixels
-- **Color Gradient**: Red (255, 0, 0) to Blue (0, 0, 255)
+- **Default Color Gradient**: Red (255, 0, 0) to Blue (0, 0, 255) (configurable via command-line arguments)
 
 The program uses the Sieve of Eratosthenes algorithm to efficiently generate prime numbers and implements a custom 3D projection system with plane intersection calculations for accurate rendering.
 
