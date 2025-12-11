@@ -3,7 +3,7 @@ use std::f64::consts::PI;
 
 const FULL_CIRCLE: u16 = 360;
 const HALF_CIRCLE: u16 = 180;
-const CAMERA_RADIUS: f64 = 280.0;
+const CAMERA_RADIUS: f64 = 300.0;
 const SCREEN_RADIUS: f64 = 260.0;
 
 fn rad(angle: u16) -> f64 {
