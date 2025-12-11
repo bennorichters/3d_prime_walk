@@ -54,6 +54,22 @@ impl eframe::App for PrimeWalkApp {
                 self.orbit.inc_azimuth();
                 needs_update = true;
             }
+            if i.key_down(egui::Key::Z) {
+                if i.modifiers.shift {
+                    self.orbit.inc_camera_radius();
+                } else {
+                    self.orbit.dec_camera_radius();
+                }
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::F) {
+                if i.modifiers.shift {
+                    self.orbit.inc_focal_length();
+                } else {
+                    self.orbit.dec_focal_length();
+                }
+                needs_update = true;
+            }
         });
 
         if needs_update || self.texture.is_none() {
