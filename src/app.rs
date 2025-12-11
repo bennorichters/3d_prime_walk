@@ -6,6 +6,8 @@ pub struct PrimeWalkApp {
     pixels: Vec<Pixel3D>,
     orbit: Orbit,
     texture: Option<egui::TextureHandle>,
+    default_camera_radius: f64,
+    default_focal_length: f64,
 }
 
 impl PrimeWalkApp {
@@ -14,6 +16,8 @@ impl PrimeWalkApp {
             pixels,
             orbit: Orbit::new(300.0, 40.0),
             texture: None,
+            default_camera_radius: 300.0,
+            default_focal_length: 40.0,
         }
     }
 
@@ -98,6 +102,13 @@ impl eframe::App for PrimeWalkApp {
                     center.z -= 1.0;
                 }
                 self.orbit.set_center(center);
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::D) {
+                self.orbit.reset_to_defaults(
+                    self.default_camera_radius,
+                    self.default_focal_length,
+                );
                 needs_update = true;
             }
         });

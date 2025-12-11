@@ -156,6 +156,18 @@ impl Orbit {
         self.center = center;
     }
 
+    pub fn reset_to_defaults(&mut self, default_camera_radius: f64, default_focal_length: f64) {
+        self.polar = 0;
+        self.azimnuth = 0;
+        self.camera_radius = default_camera_radius;
+        self.focal_length = default_focal_length;
+        self.center = Tuple3D {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    }
+
     pub fn inc_camera_radius(&mut self) -> Projection {
         self.camera_radius += 1.0;
         self.projection()
