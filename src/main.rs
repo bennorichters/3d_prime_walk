@@ -115,6 +115,7 @@ fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorI
 
     egui::ColorImage {
         size: [SIZE, SIZE],
+        source_size: egui::Vec2::new(SIZE as f32, SIZE as f32),
         pixels: pixels2d,
     }
 }
