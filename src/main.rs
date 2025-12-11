@@ -12,9 +12,13 @@ use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tup
 
 pub const SIZE: usize = 800;
 const HALF_SIZE: isize = SIZE as isize / 2;
+const DEFAULT_STEPS: usize = 10_000;
 
 fn main() {
-    let steps = 10_000;
+    let steps = std::env::args()
+        .nth(1)
+        .and_then(|arg| arg.parse::<usize>().ok())
+        .unwrap_or(DEFAULT_STEPS);
     let gradient = ColorGradient::new((255, 0, 0), (0, 0, 255), steps);
 
     let pixels = walk(steps, gradient);
