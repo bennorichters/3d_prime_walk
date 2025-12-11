@@ -1,0 +1,80 @@
+# 3D Prime Walk
+
+A mesmerizing visualization that creates a walk through three-dimensional space, where the path changes direction at every prime number. The program generates a colorful spiral pattern that reveals the mathematical beauty hidden within the distribution of prime numbers.
+
+## How It Works
+
+The program starts at the origin and begins walking in a single direction through 3D space. With each step, it counts upward from zero. Whenever the step count reaches a prime number (2, 3, 5, 7, 11, 13, ...), the walker changes direction according to a fixed sequence:
+
+1. **Right** (positive X)
+2. **Up** (positive Y)
+3. **Forward** (positive Z)
+4. **Left** (negative X)
+5. **Down** (negative Y)
+6. **Backward** (negative Z)
+
+After the sixth direction change, the sequence repeats. This creates an intricate three-dimensional path that weaves through space, its turns dictated by the distribution of prime numbers. The resulting structure is both mathematically significant and visually striking.
+
+Each step along the path is colored according to a gradient that transitions from red at the beginning to blue at the end, making it easy to see the progression of the walk and trace how the pattern unfolds over time.
+
+## Visualization
+
+The program projects the 3D walk onto a 2D screen using a sophisticated camera system with proper depth sorting, ensuring that closer points appear in front of more distant ones. The resulting image can be freely manipulated, allowing you to orbit around the structure and examine it from any angle.
+
+## Interactive Controls
+
+The visualization is fully interactive, giving you complete control over the camera:
+
+### Rotation
+- **H / L** - Rotate horizontally (decrease/increase azimuth)
+- **J / K** - Rotate vertically (decrease/increase polar angle)
+
+### Camera Distance
+- **Z** - Move camera closer to the structure
+- **Shift+Z** - Move camera away from the structure
+
+### Focal Length
+- **F** - Decrease focal length (narrower field of view)
+- **Shift+F** - Increase focal length (wider field of view)
+
+### Orbit Center
+- **A / Shift+A** - Move center point left/right (X axis)
+- **S / Shift+S** - Move center point down/up (Y axis)
+- **W / Shift+W** - Move center point backward/forward (Z axis)
+
+### Reset
+- **D** - Reset all camera values to defaults
+
+The left panel displays real-time information about the camera position, including the current azimuth, polar angle, center point coordinates, camera radius, and focal length.
+
+## Building and Running
+
+This project is written in Rust and requires a Rust toolchain to build.
+
+### Prerequisites
+- [Rust](https://www.rust-lang.org/tools/install) (edition 2024 or later)
+
+### Running the Program
+```bash
+cargo run --release
+```
+
+The `--release` flag is recommended for optimal performance when rendering the visualization.
+
+## Technical Details
+
+- **Language**: Rust
+- **GUI Framework**: eframe/egui
+- **Default Steps**: 10,000
+- **Rendering Resolution**: 800x800 pixels
+- **Color Gradient**: Red (255, 0, 0) to Blue (0, 0, 255)
+
+The program uses the Sieve of Eratosthenes algorithm to efficiently generate prime numbers and implements a custom 3D projection system with plane intersection calculations for accurate rendering.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+Benno Richters
