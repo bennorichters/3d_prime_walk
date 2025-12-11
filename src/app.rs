@@ -70,6 +70,36 @@ impl eframe::App for PrimeWalkApp {
                 }
                 needs_update = true;
             }
+            if i.key_down(egui::Key::A) {
+                let mut center = *self.orbit.center();
+                if i.modifiers.shift {
+                    center.x += 1.0;
+                } else {
+                    center.x -= 1.0;
+                }
+                self.orbit.set_center(center);
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::S) {
+                let mut center = *self.orbit.center();
+                if i.modifiers.shift {
+                    center.y += 1.0;
+                } else {
+                    center.y -= 1.0;
+                }
+                self.orbit.set_center(center);
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::W) {
+                let mut center = *self.orbit.center();
+                if i.modifiers.shift {
+                    center.z += 1.0;
+                } else {
+                    center.z -= 1.0;
+                }
+                self.orbit.set_center(center);
+                needs_update = true;
+            }
         });
 
         if needs_update || self.texture.is_none() {
