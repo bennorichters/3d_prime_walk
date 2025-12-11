@@ -81,6 +81,8 @@ impl eframe::App for PrimeWalkApp {
             ui.separator();
             ui.label(format!("Azimuth: {}", self.orbit.azimuth()));
             ui.label(format!("Polar: {}", self.orbit.polar()));
+            ui.label(format!("Camera radius: {:.1}", self.orbit.camera_radius()));
+            ui.label(format!("Focal length: {:.1}", self.orbit.focal_length()));
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {

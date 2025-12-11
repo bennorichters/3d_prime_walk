@@ -134,6 +134,14 @@ impl Orbit {
         self.azimnuth
     }
 
+    pub fn camera_radius(&self) -> f64 {
+        self.camera_radius
+    }
+
+    pub fn focal_length(&self) -> f64 {
+        self.focal_length
+    }
+
     pub fn inc_camera_radius(&mut self) -> Projection {
         self.camera_radius += 1.0;
         self.projection()
