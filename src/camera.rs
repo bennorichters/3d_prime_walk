@@ -122,4 +122,12 @@ impl Orbit {
 
         self.projection()
     }
+
+    pub fn polar(&self) -> u16 {
+        self.polar
+    }
+
+    pub fn azimuth(&self) -> u16 {
+        self.azimnuth
+    }
 }

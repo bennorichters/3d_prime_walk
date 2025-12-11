@@ -60,6 +60,13 @@ impl eframe::App for PrimeWalkApp {
             self.update_image(ctx);
         }
 
+        egui::SidePanel::left("info_panel").show(ctx, |ui| {
+            ui.heading("Camera Info");
+            ui.separator();
+            ui.label(format!("Azimuth: {}", self.orbit.azimuth()));
+            ui.label(format!("Polar: {}", self.orbit.polar()));
+        });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(texture) = &self.texture {
                 ui.image(texture);
