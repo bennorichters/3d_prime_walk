@@ -31,6 +31,7 @@ pub struct Orbit {
     azimnuth: u16,
     camera_radius: f64,
     focal_length: f64,
+    center: Tuple3D,
 }
 
 impl Orbit {
@@ -40,6 +41,11 @@ impl Orbit {
             azimnuth: 0,
             camera_radius,
             focal_length,
+            center: Tuple3D {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
         }
     }
 
@@ -52,16 +58,16 @@ impl Orbit {
         let vec_z = a.cos() * p.cos();
 
         let camera = Tuple3D {
-            x: self.camera_radius * vec_x,
-            y: self.camera_radius * vec_y,
-            z: self.camera_radius * vec_z,
+            x: self.center.x + self.camera_radius * vec_x,
+            y: self.center.y + self.camera_radius * vec_y,
+            z: self.center.z + self.camera_radius * vec_z,
         };
 
         let screen_radius = self.camera_radius - self.focal_length;
         let screen_coordinate = Tuple3D {
-            x: screen_radius * vec_x,
-            y: screen_radius * vec_y,
-            z: screen_radius * vec_z,
+            x: self.center.x + screen_radius * vec_x,
+            y: self.center.y + screen_radius * vec_y,
+            z: self.center.z + screen_radius * vec_z,
         };
 
         let vector_u = Tuple3D {
@@ -140,6 +146,10 @@ impl Orbit {
 
     pub fn focal_length(&self) -> f64 {
         self.focal_length
+    }
+
+    pub fn set_center(&mut self, center: Tuple3D) {
+        self.center = center;
     }
 
     pub fn inc_camera_radius(&mut self) -> Projection {
