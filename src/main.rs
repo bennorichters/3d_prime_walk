@@ -5,7 +5,7 @@ mod color_gradient;
 mod primes;
 mod space;
 
-use minifb::{Key, Window, WindowOptions};
+use eframe::egui;
 
 use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tuple3D};
 
@@ -84,12 +84,8 @@ where
     (f(&min), f(&max))
 }
 
-fn rgb(color: (u8, u8, u8)) -> u32 {
-    (color.0 as u32) << 16 | (color.1 as u32) << 8 | color.2 as u32
-}
-
-fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<u32> {
-    let mut pixels2d: Vec<u32> = vec![0; SIZE * SIZE];
+fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorImage {
+    let mut pixels2d: Vec<egui::Color32> = vec![egui::Color32::BLACK; SIZE * SIZE];
     let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
 
     for pixel3d in pixels3d {
@@ -105,7 +101,11 @@ fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<u32> {
                 if x < SIZE && y < SIZE {
                     let index = y * SIZE + x;
                     if distance < distances[index] {
-                        pixels2d[index] = rgb(pixel3d.color);
+                        pixels2d[index] = egui::Color32::from_rgb(
+                            pixel3d.color.0,
+                            pixel3d.color.1,
+                            pixel3d.color.2,
+                        );
                         distances[index] = distance;
                     }
                 }
@@ -113,7 +113,10 @@ fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> Vec<u32> {
         }
     }
 
-    pixels2d
+    egui::ColorImage {
+        size: [SIZE, SIZE],
+        pixels: pixels2d,
+    }
 }
 
 fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
@@ -152,33 +155,85 @@ fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     result
 }
 
-fn image(pixels: Vec<Pixel3D>) {
-    let mut orbit = Orbit::new();
-    let projection = orbit.projection();
+struct PrimeWalkApp {
+    pixels: Vec<Pixel3D>,
+    orbit: Orbit,
+    texture: Option<egui::TextureHandle>,
+}
 
-    let mut window = Window::new("Test", SIZE, SIZE, WindowOptions::default()).unwrap();
-    window.update();
-
-    let pixels2d = map_to_pixels2d(&pixels, projection);
-    window.update_with_buffer(&pixels2d, SIZE, SIZE).unwrap();
-
-    while window.is_open() {
-        let projection_option = if window.is_key_down(Key::J) {
-            Some(orbit.dec_polar())
-        } else if window.is_key_down(Key::K) {
-            Some(orbit.inc_polar())
-        } else if window.is_key_down(Key::H) {
-            Some(orbit.dec_azimuth())
-        } else if window.is_key_down(Key::L) {
-            Some(orbit.inc_azimuth())
-        } else {
-            None
-        };
-
-        if let Some(projection) = projection_option {
-            let pixels2d = map_to_pixels2d(&pixels, projection);
-            window.update_with_buffer(&pixels2d, SIZE, SIZE).unwrap();
+impl PrimeWalkApp {
+    fn new(pixels: Vec<Pixel3D>) -> Self {
+        Self {
+            pixels,
+            orbit: Orbit::new(),
+            texture: None,
         }
-        window.update();
     }
+
+    fn update_image(&mut self, ctx: &egui::Context) {
+        let projection = self.orbit.projection();
+        let color_image = map_to_pixels2d(&self.pixels, projection);
+
+        if let Some(texture) = &mut self.texture {
+            texture.set(color_image, egui::TextureOptions::default());
+        } else {
+            self.texture = Some(ctx.load_texture(
+                "prime_walk",
+                color_image,
+                egui::TextureOptions::default(),
+            ));
+        }
+    }
+}
+
+impl eframe::App for PrimeWalkApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let mut needs_update = false;
+
+        ctx.input(|i| {
+            if i.key_down(egui::Key::J) {
+                self.orbit.dec_polar();
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::K) {
+                self.orbit.inc_polar();
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::H) {
+                self.orbit.dec_azimuth();
+                needs_update = true;
+            }
+            if i.key_down(egui::Key::L) {
+                self.orbit.inc_azimuth();
+                needs_update = true;
+            }
+        });
+
+        if needs_update || self.texture.is_none() {
+            self.update_image(ctx);
+        }
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            if let Some(texture) = &self.texture {
+                ui.image(texture);
+            }
+        });
+
+        ctx.request_repaint();
+    }
+}
+
+fn image(pixels: Vec<Pixel3D>) {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([SIZE as f32, SIZE as f32])
+            .with_title("3D Prime Walk"),
+        ..Default::default()
+    };
+
+    let _ = eframe::run_native(
+        "3D Prime Walk",
+        options,
+        Box::new(|_cc| Ok(Box::new(PrimeWalkApp::new(pixels)))),
+    );
 }
