@@ -48,9 +48,7 @@ fn main() {
         .unwrap_or(DEFAULT_END_COLOR);
 
     let gradient = ColorGradient::new(start_color, end_color, steps);
-
     let pixels = walk(steps, gradient);
-    show_extremes(&pixels);
 
     app::image(pixels);
 }
@@ -93,28 +91,6 @@ impl Iterator for DirIterator {
 
         Some(result)
     }
-}
-
-fn show_extremes(pixels: &[Pixel3D]) {
-    let (min_x, max_x) = extremes(pixels, |e| e.coordinate.x);
-    let (min_y, max_y) = extremes(pixels, |e| e.coordinate.y);
-    let (min_z, max_z) = extremes(pixels, |e| e.coordinate.z);
-
-    println!(
-        "({}, {}, {}), ({}, {}, {})",
-        min_x, min_y, min_z, max_x, max_y, max_z
-    );
-}
-
-fn extremes<F>(pixels: &[Pixel3D], f: F) -> (f64, f64)
-where
-    F: Fn(&&Pixel3D) -> f64,
-{
-    let compare = |a: &&Pixel3D, b: &&Pixel3D| f(a).total_cmp(&f(b));
-    let min = pixels.iter().min_by(compare).unwrap();
-    let max = pixels.iter().max_by(compare).unwrap();
-
-    (f(&min), f(&max))
 }
 
 pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorImage {
