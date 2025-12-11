@@ -148,6 +148,10 @@ impl Orbit {
         self.focal_length
     }
 
+    pub fn center(&self) -> &Tuple3D {
+        &self.center
+    }
+
     pub fn set_center(&mut self, center: Tuple3D) {
         self.center = center;
     }
