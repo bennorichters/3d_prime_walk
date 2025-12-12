@@ -34,6 +34,7 @@ The visualization is fully interactive, giving you complete control over the cam
 ### Rotation
 - **H / L** - Rotate horizontally (decrease/increase azimuth)
 - **J / K** - Rotate vertically (decrease/increase polar angle)
+- **R / Shift+R** - Roll camera (decrease/increase rotation angle)
 
 ### Camera Distance
 - **Z** - Move camera closer to the structure
@@ -51,7 +52,7 @@ The visualization is fully interactive, giving you complete control over the cam
 ### Reset
 - **D** - Reset all camera values to defaults
 
-The left panel displays real-time information about the camera position, including the current azimuth, polar angle, center point coordinates, camera radius, and focal length.
+The left panel displays real-time information about the camera position, including the current azimuth, polar angle, rotation angle, center point coordinates, camera radius, and focal length.
 
 ## Building and Running
 
