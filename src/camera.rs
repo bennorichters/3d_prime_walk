@@ -54,6 +54,7 @@ impl Orbit {
     pub fn projection(&self) -> Projection {
         let a = rad(self.azimnuth);
         let p = rad(self.polar);
+        let r = rad(self.rotation);
 
         let vec_x = a.sin() * p.cos();
         let vec_y = p.sin();
@@ -72,16 +73,31 @@ impl Orbit {
             z: self.center.z + screen_radius * vec_z,
         };
 
-        let vector_u = Tuple3D {
+        let u_base = Tuple3D {
             x: a.cos(),
             y: 0.0,
             z: -a.sin(),
         };
 
-        let vector_v = Tuple3D {
+        let v_base = Tuple3D {
             x: -a.sin() * p.sin(),
             y: p.cos(),
             z: -a.cos() * p.sin(),
+        };
+
+        let cos_r = r.cos();
+        let sin_r = r.sin();
+
+        let vector_u = Tuple3D {
+            x: cos_r * u_base.x - sin_r * v_base.x,
+            y: cos_r * u_base.y - sin_r * v_base.y,
+            z: cos_r * u_base.z - sin_r * v_base.z,
+        };
+
+        let vector_v = Tuple3D {
+            x: sin_r * u_base.x + cos_r * v_base.x,
+            y: sin_r * u_base.y + cos_r * v_base.y,
+            z: sin_r * u_base.z + cos_r * v_base.z,
         };
 
         Projection {
