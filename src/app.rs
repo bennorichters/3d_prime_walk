@@ -111,6 +111,14 @@ impl eframe::App for PrimeWalkApp {
                 );
                 needs_update = true;
             }
+            if i.key_down(egui::Key::R) {
+                if i.modifiers.shift {
+                    self.orbit.inc_rotation();
+                } else {
+                    self.orbit.dec_rotation();
+                }
+                needs_update = true;
+            }
         });
 
         if needs_update || self.texture.is_none() {
@@ -122,6 +130,7 @@ impl eframe::App for PrimeWalkApp {
             ui.separator();
             ui.label(format!("Azimuth: {}", self.orbit.azimuth()));
             ui.label(format!("Polar: {}", self.orbit.polar()));
+            ui.label(format!("Rotation: {}", self.orbit.rotation()));
             let center = self.orbit.center();
             ui.label(format!(
                 "Center: ({:.1}, {:.1}, {:.1})",
