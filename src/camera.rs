@@ -29,6 +29,7 @@ impl Projection {
 pub struct Orbit {
     polar: u16,
     azimnuth: u16,
+    rotation: u16,
     camera_radius: f64,
     focal_length: f64,
     center: Tuple3D,
@@ -39,6 +40,7 @@ impl Orbit {
         Orbit {
             polar: 0,
             azimnuth: 0,
+            rotation: 0,
             camera_radius,
             focal_length,
             center: Tuple3D {
@@ -132,12 +134,36 @@ impl Orbit {
         self.projection()
     }
 
+    pub fn inc_rotation(&mut self) -> Projection {
+        if self.rotation == FULL_CIRCLE - 1 {
+            self.rotation = 0;
+        } else {
+            self.rotation += 1;
+        }
+
+        self.projection()
+    }
+
+    pub fn dec_rotation(&mut self) -> Projection {
+        if self.rotation == 0 {
+            self.rotation = FULL_CIRCLE - 1;
+        } else {
+            self.rotation -= 1;
+        }
+
+        self.projection()
+    }
+
     pub fn polar(&self) -> u16 {
         self.polar
     }
 
     pub fn azimuth(&self) -> u16 {
         self.azimnuth
+    }
+
+    pub fn rotation(&self) -> u16 {
+        self.rotation
     }
 
     pub fn camera_radius(&self) -> f64 {
@@ -159,6 +185,7 @@ impl Orbit {
     pub fn reset_to_defaults(&mut self, default_camera_radius: f64, default_focal_length: f64) {
         self.polar = 0;
         self.azimnuth = 0;
+        self.rotation = 0;
         self.camera_radius = default_camera_radius;
         self.focal_length = default_focal_length;
         self.center = Tuple3D {
