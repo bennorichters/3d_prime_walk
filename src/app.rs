@@ -142,7 +142,11 @@ impl eframe::App for PrimeWalkApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(texture) = &self.texture {
-                ui.image(texture);
+                egui::Frame::new()
+                    .stroke(egui::Stroke::new(2.0, egui::Color32::GREEN))
+                    .show(ui, |ui| {
+                        ui.image(texture);
+                    });
             }
         });
 
