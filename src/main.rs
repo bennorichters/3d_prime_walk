@@ -1,9 +1,9 @@
-use crate::{color_gradient::ColorGradient, cube::walk};
+use crate::{color_gradient::ColorGradient, prime_walk::walk};
 
 mod app;
 mod camera;
 mod color_gradient;
-mod cube;
+mod prime_walk;
 mod primes;
 mod space;
 
