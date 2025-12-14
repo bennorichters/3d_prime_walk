@@ -66,7 +66,7 @@ impl Orbit {
             z: self.center.z + self.camera_radius * vec_z,
         };
 
-        let screen_radius = self.camera_radius - self.focal_length;
+        let screen_radius = self.camera_radius + self.focal_length;
         let screen_coordinate = Tuple3D {
             x: self.center.x + screen_radius * vec_x,
             y: self.center.y + screen_radius * vec_y,

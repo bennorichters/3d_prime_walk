@@ -64,7 +64,7 @@ impl Plane {
 
         let dist1 = coord1.sub(&self.coordinate).dot(&n);
         let dist2 = coord2.sub(&self.coordinate).dot(&n);
-        if dist1 * dist2 >= 0.0 {
+        if dist1 * dist2 < 0.0 {
             return None;
         }
 
