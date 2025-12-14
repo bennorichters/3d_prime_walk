@@ -51,6 +51,11 @@ impl Tuple3D {
     }
 }
 
+pub struct Pixel3D {
+    pub coordinate: Tuple3D,
+    pub color: (u8, u8, u8),
+}
+
 #[derive(Debug)]
 pub struct Plane {
     pub coordinate: Tuple3D,
@@ -64,7 +69,7 @@ impl Plane {
 
         let dist1 = coord1.sub(&self.coordinate).dot(&n);
         let dist2 = coord2.sub(&self.coordinate).dot(&n);
-        if dist1 * dist2 < 0.0 {
+        if dist1 * dist2 <= 0.0 {
             return None;
         }
 
@@ -86,7 +91,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aap() {
+    fn test_parallel() {
         let p = Plane {
             coordinate: Tuple3D {
                 x: 0.0,

@@ -1,4 +1,4 @@
-use crate::{color_gradient::ColorGradient, prime_walk::walk, space::Tuple3D};
+use crate::{color_gradient::ColorGradient, prime_walk::walk};
 
 mod app;
 mod camera;
@@ -47,9 +47,4 @@ fn main() {
     let pixels = walk(steps, gradient);
 
     app::image(pixels);
-}
-
-pub struct Pixel3D {
-    pub coordinate: Tuple3D,
-    pub color: (u8, u8, u8),
 }

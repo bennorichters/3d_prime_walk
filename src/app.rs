@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::{camera::Orbit, camera::Projection, Pixel3D, SIZE};
+use crate::{SIZE, camera::Orbit, camera::Projection, space::Pixel3D};
 
 const HALF_SIZE: isize = SIZE as isize / 2;
 
@@ -66,11 +66,8 @@ impl PrimeWalkApp {
         if let Some(texture) = &mut self.texture {
             texture.set(color_image, egui::TextureOptions::default());
         } else {
-            self.texture = Some(ctx.load_texture(
-                "prime_walk",
-                color_image,
-                egui::TextureOptions::default(),
-            ));
+            self.texture =
+                Some(ctx.load_texture("prime_walk", color_image, egui::TextureOptions::default()));
         }
     }
 }
@@ -143,10 +140,8 @@ impl eframe::App for PrimeWalkApp {
                 needs_update = true;
             }
             if i.key_down(egui::Key::D) {
-                self.orbit.reset_to_defaults(
-                    self.default_camera_radius,
-                    self.default_focal_length,
-                );
+                self.orbit
+                    .reset_to_defaults(self.default_camera_radius, self.default_focal_length);
                 needs_update = true;
             }
             if i.key_down(egui::Key::R) {

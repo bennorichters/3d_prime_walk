@@ -1,4 +1,4 @@
-use crate::{color_gradient::ColorGradient, primes::Primes, space::Tuple3D, Pixel3D};
+use crate::{color_gradient::ColorGradient, primes::Primes, space::{Pixel3D, Tuple3D}};
 
 static DIRS: &[[isize; 3]] = &[
     [1, 0, 0],
