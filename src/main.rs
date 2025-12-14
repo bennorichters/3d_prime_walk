@@ -1,12 +1,13 @@
 mod app;
 mod camera;
 mod color_gradient;
+mod prime_walk;
 mod primes;
 mod space;
 
 use eframe::egui;
 
-use crate::{camera::*, color_gradient::ColorGradient, primes::Primes, space::Tuple3D};
+use crate::{camera::*, color_gradient::ColorGradient, prime_walk::walk, space::Tuple3D};
 
 pub const SIZE: usize = 800;
 const HALF_SIZE: isize = SIZE as isize / 2;
@@ -56,33 +57,6 @@ pub struct Pixel3D {
     pub color: (u8, u8, u8),
 }
 
-static DIRS: &[[isize; 3]] = &[
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1],
-    [-1, 0, 0],
-    [0, -1, 0],
-    [0, 0, -1],
-];
-
-struct DirIterator {
-    index: usize,
-}
-
-impl Iterator for DirIterator {
-    type Item = [isize; 3];
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let result = DIRS[self.index];
-        self.index += 1;
-        if self.index == DIRS.len() {
-            self.index = 0;
-        }
-
-        Some(result)
-    }
-}
-
 pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorImage {
     let mut pixels2d: Vec<egui::Color32> = vec![egui::Color32::BLACK; SIZE * SIZE];
     let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
@@ -117,40 +91,4 @@ pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::Co
         source_size: egui::Vec2::new(SIZE as f32, SIZE as f32),
         pixels: pixels2d,
     }
-}
-
-fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
-    let mut result = vec![];
-
-    let mut x = 0;
-    let mut y = 0;
-    let mut z = 0;
-
-    let mut dir_it = DirIterator { index: 0 };
-
-    let mut dir = dir_it.next().unwrap();
-    let mut primes = Primes::new();
-    let mut p = primes.next().unwrap();
-    for n in 0..steps {
-        if n == (p as usize) {
-            dir = dir_it.next().unwrap();
-            p = primes.next().unwrap();
-        }
-
-        let color = gradient.next().unwrap();
-        result.push(Pixel3D {
-            coordinate: Tuple3D {
-                x: x as f64,
-                y: y as f64,
-                z: z as f64,
-            },
-            color,
-        });
-
-        x += dir[0];
-        y += dir[1];
-        z += dir[2];
-    }
-
-    result
 }
