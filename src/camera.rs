@@ -217,7 +217,9 @@ impl Orbit {
     }
 
     pub fn dec_camera_radius(&mut self) -> Projection {
-        self.camera_radius -= 1.0;
+        if self.camera_radius >= 1.0 {
+            self.camera_radius -= 1.0;
+        }
         self.projection()
     }
 
@@ -227,7 +229,9 @@ impl Orbit {
     }
 
     pub fn dec_focal_length(&mut self) -> Projection {
-        self.focal_length -= 1.0;
+        if self.focal_length > 1.0 {
+            self.focal_length -= 1.0;
+        }
         self.projection()
     }
 }
