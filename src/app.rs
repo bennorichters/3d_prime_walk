@@ -13,21 +13,15 @@ pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::Co
         if let Some((distance, coord)) = dist_coord_option {
             let ix = HALF_SIZE + coord.0.round() as isize;
             let iy = HALF_SIZE + coord.1.round() as isize;
+            let x = ix as usize;
+            let y = iy as usize;
 
-            if ix >= 0 && iy >= 0 {
-                let x = ix as usize;
-                let y = iy as usize;
-
-                if x < SIZE && y < SIZE {
-                    let index = y * SIZE + x;
-                    if distance < distances[index] {
-                        pixels2d[index] = egui::Color32::from_rgb(
-                            pixel3d.color.0,
-                            pixel3d.color.1,
-                            pixel3d.color.2,
-                        );
-                        distances[index] = distance;
-                    }
+            if ix >= 0 && iy >= 0 && x < SIZE && y < SIZE {
+                let index = y * SIZE + x;
+                if distance < distances[index] {
+                    pixels2d[index] =
+                        egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
+                    distances[index] = distance;
                 }
             }
         }
