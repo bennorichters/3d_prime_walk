@@ -80,82 +80,38 @@ impl Iterator for DirIterator {
     }
 }
 
-fn walk(_steps: usize, mut _gradient: ColorGradient) -> Vec<Pixel3D> {
+fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     let mut result = vec![];
 
-   for x in -5..=5 {
-        result.push(Pixel3D {
-            coordinate: Tuple3D {
-                x: x as f64,
-                y: 10.0,
-                z: 0.0,
-            },
-            color: (255, 0, 0),
-        });
-        result.push(Pixel3D {
-            coordinate: Tuple3D {
-                x: x as f64,
-                y: -10.0,
-                z: 0.0,
-            },
-            color: (255, 0, 0),
-        });
-    }
+    let mut x = 0;
+    let mut y = 0;
+    let mut z = 0;
 
-   for y in -5..=5 {
+    let mut dir_it = DirIterator { index: 0 };
+
+    let mut dir = dir_it.next().unwrap();
+    let mut primes = Primes::new();
+    let mut p = primes.next().unwrap();
+    for n in 0..steps {
+        if n == (p as usize) {
+            dir = dir_it.next().unwrap();
+            p = primes.next().unwrap();
+        }
+
+        let color = gradient.next().unwrap();
         result.push(Pixel3D {
             coordinate: Tuple3D {
-                x: -10.0,
+                x: x as f64,
                 y: y as f64,
-                z: 0.0,
+                z: z as f64,
             },
-            color: (255, 0, 0),
+            color,
         });
-        result.push(Pixel3D {
-            coordinate: Tuple3D {
-                x: 10.0,
-                y: y as f64,
-                z: 0.0,
-            },
-            color: (255, 0, 0),
-        });
+
+        x += dir[0];
+        y += dir[1];
+        z += dir[2];
     }
 
     result
 }
-
-// fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
-//     let mut result = vec![];
-//
-//     let mut x = 0;
-//     let mut y = 0;
-//     let mut z = 0;
-//
-//     let mut dir_it = DirIterator { index: 0 };
-//
-//     let mut dir = dir_it.next().unwrap();
-//     let mut primes = Primes::new();
-//     let mut p = primes.next().unwrap();
-//     for n in 0..steps {
-//         if n == (p as usize) {
-//             dir = dir_it.next().unwrap();
-//             p = primes.next().unwrap();
-//         }
-//
-//         let color = gradient.next().unwrap();
-//         result.push(Pixel3D {
-//             coordinate: Tuple3D {
-//                 x: x as f64,
-//                 y: y as f64,
-//                 z: z as f64,
-//             },
-//             color,
-//         });
-//
-//         x += dir[0];
-//         y += dir[1];
-//         z += dir[2];
-//     }
-//
-//     result
-// }
