@@ -1,4 +1,4 @@
-use crate::space::{Plane, Tuple3D};
+use crate::space::{Screen, Tuple3D};
 use std::f64::consts::PI;
 
 const FULL_CIRCLE: u16 = 360;
@@ -10,7 +10,7 @@ fn rad(angle: u16) -> f64 {
 
 pub struct Projection {
     pub camera: Tuple3D,
-    pub screen: Plane,
+    pub screen: Screen,
 }
 
 impl Projection {
@@ -111,7 +111,7 @@ impl Orbit {
 
         Projection {
             camera,
-            screen: Plane {
+            screen: Screen {
                 coordinate: screen_coordinate,
                 vector_u,
                 vector_v,

@@ -57,7 +57,7 @@ pub struct Pixel3D {
 }
 
 #[derive(Debug)]
-pub struct Plane {
+pub struct Screen {
     pub coordinate: Tuple3D,
     pub vector_u: Tuple3D,
     pub vector_v: Tuple3D,
@@ -65,20 +65,20 @@ pub struct Plane {
     pub height: usize,
 }
 
-impl Plane {
-    pub fn intersect(&self, coord1: &Tuple3D, coord2: &Tuple3D) -> Option<(usize, usize)> {
+impl Screen {
+    pub fn intersect(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
         let n = self.vector_u.cross(&self.vector_v);
 
-        let dist1 = coord1.sub(&self.coordinate).dot(&n);
-        let dist2 = coord2.sub(&self.coordinate).dot(&n);
+        let dist1 = camera.sub(&self.coordinate).dot(&n);
+        let dist2 = target.sub(&self.coordinate).dot(&n);
         if dist1 * dist2 <= 0.0 {
             return None;
         }
 
-        let d = coord2.sub(coord1);
+        let d = target.sub(camera);
         let denom = d.dot(&n);
         let t = -dist1 / denom;
-        let q = coord1.add(&d.scale(t));
+        let q = camera.add(&d.scale(t));
 
         let diff = q.sub(&self.coordinate);
         let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_parallel() {
-        let p = Plane {
+        let p = Screen {
             coordinate: Tuple3D {
                 x: 0.0,
                 y: 260.0,
