@@ -106,6 +106,8 @@ impl Orbit {
                 coordinate: screen_coordinate,
                 vector_u,
                 vector_v,
+                width: 800,
+                height: 800,
             },
         }
     }

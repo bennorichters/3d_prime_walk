@@ -61,6 +61,8 @@ pub struct Plane {
     pub coordinate: Tuple3D,
     pub vector_u: Tuple3D,
     pub vector_v: Tuple3D,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Plane {
@@ -108,6 +110,8 @@ mod tests {
                 y: 0.0,
                 z: 1.0,
             },
+            width: 100,
+            height: 100,
         };
 
         let c1 = Tuple3D {
