@@ -88,10 +88,10 @@ impl Plane {
         let half_width = self.width as f64 / 2.0;
         let half_height = self.height as f64 / 2.0;
 
-        let pixel_x = u + half_width;
-        let pixel_y = v + half_height;
+        let pixel_x = (u + half_width).round();
+        let pixel_y = (v + half_height).round();
 
-        // Check if within boundaries
+        // Check if within boundaries (after rounding)
         if pixel_x < 0.0 || pixel_x >= self.width as f64 ||
            pixel_y < 0.0 || pixel_y >= self.height as f64 {
             return None;
