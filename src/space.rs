@@ -99,6 +99,29 @@ impl Screen {
 
         Some((pixel_x as usize, pixel_y as usize))
     }
+
+    pub fn corners(&self) -> [Tuple3D; 4] {
+        let half_width = self.width as f64 / 2.0;
+        let half_height = self.height as f64 / 2.0;
+
+        let top_left = self.coordinate
+            .add(&self.vector_u.scale(-half_width))
+            .add(&self.vector_v.scale(-half_height));
+
+        let top_right = self.coordinate
+            .add(&self.vector_u.scale(half_width))
+            .add(&self.vector_v.scale(-half_height));
+
+        let bottom_left = self.coordinate
+            .add(&self.vector_u.scale(-half_width))
+            .add(&self.vector_v.scale(half_height));
+
+        let bottom_right = self.coordinate
+            .add(&self.vector_u.scale(half_width))
+            .add(&self.vector_v.scale(half_height));
+
+        [top_left, top_right, bottom_left, bottom_right]
+    }
 }
 
 #[cfg(test)]
