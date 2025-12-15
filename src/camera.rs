@@ -33,10 +33,12 @@ pub struct Orbit {
     camera_radius: f64,
     focal_length: f64,
     center: Tuple3D,
+    screen_width: usize,
+    screen_height: usize,
 }
 
 impl Orbit {
-    pub fn new(camera_radius: f64, focal_length: f64) -> Self {
+    pub fn new(camera_radius: f64, focal_length: f64, screen_width: usize, screen_height: usize) -> Self {
         Orbit {
             polar: 0,
             azimnuth: 0,
@@ -48,6 +50,8 @@ impl Orbit {
                 y: 0.0,
                 z: 0.0,
             },
+            screen_width,
+            screen_height,
         }
     }
 
@@ -106,8 +110,8 @@ impl Orbit {
                 coordinate: screen_coordinate,
                 vector_u,
                 vector_v,
-                width: 800,
-                height: 800,
+                width: self.screen_width,
+                height: self.screen_height,
             },
         }
     }

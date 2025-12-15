@@ -40,7 +40,7 @@ impl PrimeWalkApp {
     fn new(pixels: Vec<Pixel3D>) -> Self {
         Self {
             pixels,
-            orbit: Orbit::new(300.0, 40.0),
+            orbit: Orbit::new(300.0, 40.0, SIZE / 2, SIZE / 2),
             texture: None,
             default_camera_radius: 300.0,
             default_focal_length: 40.0,
