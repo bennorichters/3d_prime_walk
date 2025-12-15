@@ -66,7 +66,7 @@ pub struct Plane {
 }
 
 impl Plane {
-    pub fn intersect(&self, coord1: &Tuple3D, coord2: &Tuple3D) -> Option<(f64, f64)> {
+    pub fn intersect(&self, coord1: &Tuple3D, coord2: &Tuple3D) -> Option<(usize, usize)> {
         let n = self.vector_u.cross(&self.vector_v);
 
         let dist1 = coord1.sub(&self.coordinate).dot(&n);
@@ -84,7 +84,20 @@ impl Plane {
         let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
         let v = diff.dot(&self.vector_v) / self.vector_v.dot(&self.vector_v);
 
-        Some((u, v))
+        // Convert to pixel coordinates (coordinate is the center of the plane)
+        let half_width = self.width as f64 / 2.0;
+        let half_height = self.height as f64 / 2.0;
+
+        let pixel_x = u + half_width;
+        let pixel_y = v + half_height;
+
+        // Check if within boundaries
+        if pixel_x < 0.0 || pixel_x >= self.width as f64 ||
+           pixel_y < 0.0 || pixel_y >= self.height as f64 {
+            return None;
+        }
+
+        Some((pixel_x as usize, pixel_y as usize))
     }
 }
 

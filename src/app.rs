@@ -2,33 +2,21 @@ use eframe::egui;
 
 use crate::{SIZE, camera::Orbit, camera::Projection, space::Pixel3D};
 
-const HALF_SIZE: isize = SIZE as isize / 2;
-
 pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorImage {
     let mut pixels2d: Vec<egui::Color32> = vec![egui::Color32::BLACK; SIZE * SIZE];
     let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
 
     for pixel3d in pixels3d {
         let dist_coord_option = projection.project(&pixel3d.coordinate);
-        if let Some((distance, coord)) = dist_coord_option {
-            let ix = HALF_SIZE + coord.0.round() as isize;
-            let iy = HALF_SIZE + coord.1.round() as isize;
-
-            if ix >= 0 && iy >= 0 {
-                let x = ix as usize;
-                let y = iy as usize;
-
-                if x < SIZE && y < SIZE {
-                    let index = y * SIZE + x;
-                    if distance < distances[index] {
-                        pixels2d[index] = egui::Color32::from_rgb(
-                            pixel3d.color.0,
-                            pixel3d.color.1,
-                            pixel3d.color.2,
-                        );
-                        distances[index] = distance;
-                    }
-                }
+        if let Some((distance, (x, y))) = dist_coord_option {
+            let index = y * SIZE + x;
+            if distance < distances[index] {
+                pixels2d[index] = egui::Color32::from_rgb(
+                    pixel3d.color.0,
+                    pixel3d.color.1,
+                    pixel3d.color.2,
+                );
+                distances[index] = distance;
             }
         }
     }
