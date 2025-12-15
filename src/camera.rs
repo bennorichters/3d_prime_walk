@@ -38,7 +38,12 @@ pub struct Orbit {
 }
 
 impl Orbit {
-    pub fn new(camera_radius: f64, focal_length: f64, screen_width: usize, screen_height: usize) -> Self {
+    pub fn new(
+        camera_radius: f64,
+        focal_length: f64,
+        screen_width: usize,
+        screen_height: usize,
+    ) -> Self {
         Orbit {
             polar: 0,
             azimnuth: 0,
