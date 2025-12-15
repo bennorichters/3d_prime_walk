@@ -11,11 +11,8 @@ pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::Co
         if let Some((distance, (x, y))) = dist_coord_option {
             let index = y * SIZE + x;
             if distance < distances[index] {
-                pixels2d[index] = egui::Color32::from_rgb(
-                    pixel3d.color.0,
-                    pixel3d.color.1,
-                    pixel3d.color.2,
-                );
+                pixels2d[index] =
+                    egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
                 distances[index] = distance;
             }
         }
@@ -40,7 +37,7 @@ impl PrimeWalkApp {
     fn new(pixels: Vec<Pixel3D>) -> Self {
         Self {
             pixels,
-            orbit: Orbit::new(300.0, 40.0, SIZE / 2, SIZE / 2),
+            orbit: Orbit::new(300.0, 40.0, SIZE, SIZE),
             texture: None,
             default_camera_radius: 300.0,
             default_focal_length: 40.0,
