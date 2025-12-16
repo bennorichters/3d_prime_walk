@@ -58,14 +58,24 @@ pub struct Pixel3D {
 
 #[derive(Debug)]
 pub struct Screen {
-    pub coordinate: Tuple3D,
-    pub vector_u: Tuple3D,
-    pub vector_v: Tuple3D,
-    pub width: usize,
-    pub height: usize,
+    coordinate: Tuple3D,
+    vector_u: Tuple3D,
+    vector_v: Tuple3D,
+    width: usize,
+    height: usize,
 }
 
 impl Screen {
+    pub fn new(coordinate: Tuple3D, vector_u: Tuple3D, vector_v: Tuple3D, width: usize, height: usize) -> Self {
+        Screen {
+            coordinate,
+            vector_u,
+            vector_v,
+            width,
+            height,
+        }
+    }
+
     pub fn intersect(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
         let n = self.vector_u.cross(&self.vector_v);
 
@@ -202,25 +212,25 @@ mod tests {
 
     #[test]
     fn test_parallel() {
-        let p = Screen {
-            coordinate: Tuple3D {
+        let p = Screen::new(
+            Tuple3D {
                 x: 0.0,
                 y: 260.0,
                 z: 0.0,
             },
-            vector_u: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
             },
-            vector_v: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 1.0,
             },
-            width: 100,
-            height: 100,
-        };
+            100,
+            100,
+        );
 
         let c1 = Tuple3D {
             x: 0.0,

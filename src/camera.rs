@@ -111,13 +111,13 @@ impl Orbit {
 
         Projection {
             camera,
-            screen: Screen {
-                coordinate: screen_coordinate,
+            screen: Screen::new(
+                screen_coordinate,
                 vector_u,
                 vector_v,
-                width: self.screen_width,
-                height: self.screen_height,
-            },
+                self.screen_width,
+                self.screen_height,
+            ),
         }
     }
 
