@@ -14,11 +14,11 @@ impl Tuple3D {
         dx * dx + dy * dy + dz * dz
     }
 
-    fn dot(&self, other: &Tuple3D) -> f64 {
+    pub fn dot(&self, other: &Tuple3D) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    fn cross(&self, other: &Tuple3D) -> Tuple3D {
+    pub fn cross(&self, other: &Tuple3D) -> Tuple3D {
         Tuple3D {
             x: self.y * other.z - self.z * other.y,
             y: self.z * other.x - self.x * other.z,
@@ -26,7 +26,7 @@ impl Tuple3D {
         }
     }
 
-    fn sub(&self, other: &Tuple3D) -> Tuple3D {
+    pub fn sub(&self, other: &Tuple3D) -> Tuple3D {
         Tuple3D {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -34,7 +34,7 @@ impl Tuple3D {
         }
     }
 
-    fn scale(&self, t: f64) -> Tuple3D {
+    pub fn scale(&self, t: f64) -> Tuple3D {
         Tuple3D {
             x: self.x * t,
             y: self.y * t,
@@ -42,7 +42,7 @@ impl Tuple3D {
         }
     }
 
-    fn add(&self, other: &Tuple3D) -> Tuple3D {
+    pub fn add(&self, other: &Tuple3D) -> Tuple3D {
         Tuple3D {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -54,93 +54,6 @@ impl Tuple3D {
 pub struct Pixel3D {
     pub coordinate: Tuple3D,
     pub color: (u8, u8, u8),
-}
-
-#[derive(Debug)]
-pub struct Screen {
-    screen_center: Tuple3D,
-    vector_u: Tuple3D,
-    vector_v: Tuple3D,
-    width: usize,
-    height: usize,
-    pub corners: [Tuple3D; 4],
-    normal: Tuple3D,
-}
-
-impl Screen {
-    pub fn new(
-        coordinate: Tuple3D,
-        vector_u: Tuple3D,
-        vector_v: Tuple3D,
-        width: usize,
-        height: usize,
-    ) -> Self {
-        let half_width = width as f64 / 2.0;
-        let half_height = height as f64 / 2.0;
-
-        let top_left = coordinate
-            .add(&vector_u.scale(-half_width))
-            .add(&vector_v.scale(-half_height));
-
-        let top_right = coordinate
-            .add(&vector_u.scale(half_width))
-            .add(&vector_v.scale(-half_height));
-
-        let bottom_left = coordinate
-            .add(&vector_u.scale(-half_width))
-            .add(&vector_v.scale(half_height));
-
-        let bottom_right = coordinate
-            .add(&vector_u.scale(half_width))
-            .add(&vector_v.scale(half_height));
-
-        let normal = vector_u.cross(&vector_v);
-
-        Screen {
-            screen_center: coordinate,
-            vector_u,
-            vector_v,
-            width,
-            height,
-            corners: [top_left, top_right, bottom_left, bottom_right],
-            normal,
-        }
-    }
-
-    pub fn project(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
-        let dist1 = camera.sub(&self.screen_center).dot(&self.normal);
-        let dist2 = target.sub(&self.screen_center).dot(&self.normal);
-        if dist1 * dist2 <= 0.0 || dist1.abs() >= dist2.abs() {
-            return None;
-        }
-
-        let d = target.sub(camera);
-        let denom = d.dot(&self.normal);
-        let t = -dist1 / denom;
-        let q = camera.add(&d.scale(t));
-
-        let diff = q.sub(&self.screen_center);
-        let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
-        let v = diff.dot(&self.vector_v) / self.vector_v.dot(&self.vector_v);
-
-        // Convert to pixel coordinates (coordinate is the center of the plane)
-        let half_width = self.width as f64 / 2.0;
-        let half_height = self.height as f64 / 2.0;
-
-        let pixel_x = (u + half_width).round();
-        let pixel_y = (v + half_height).round();
-
-        // Check if within boundaries (after rounding)
-        if pixel_x < 0.0
-            || pixel_x >= self.width as f64
-            || pixel_y < 0.0
-            || pixel_y >= self.height as f64
-        {
-            return None;
-        }
-
-        Some((pixel_x as usize, pixel_y as usize))
-    }
 }
 
 pub struct Plane {
@@ -187,81 +100,6 @@ impl Plane {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_above_camera() {
-        let s = Screen::new(
-            Tuple3D {
-                x: 0.0,
-                y: 0.0,
-                z: 42.0,
-            },
-            Tuple3D {
-                x: 1.0,
-                y: 0.0,
-                z: 0.0,
-            },
-            Tuple3D {
-                x: 0.0,
-                y: 1.0,
-                z: 0.0,
-            },
-            800,
-            800,
-        );
-
-        let camera = Tuple3D {
-            x: 0.0,
-            y: 0.0,
-            z: 2.0,
-        };
-        let target = Tuple3D {
-            x: 0.0,
-            y: 3.0,
-            z: 2.0,
-        };
-
-        let a = s.project(&camera, &target);
-        assert!(a.is_none());
-    }
-
-    #[test]
-    fn test_parallel() {
-        let p = Screen::new(
-            Tuple3D {
-                x: 0.0,
-                y: 260.0,
-                z: 0.0,
-            },
-            Tuple3D {
-                x: 0.0,
-                y: 1.0,
-                z: 0.0,
-            },
-            Tuple3D {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
-            100,
-            100,
-        );
-
-        let c1 = Tuple3D {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
-
-        let c2 = Tuple3D {
-            x: 0.0,
-            y: 280.0,
-            z: 0.0,
-        };
-
-        let a = p.project(&c1, &c2);
-        assert!(a.is_none());
-    }
 
     #[test]
     fn test_plane_intersect_normal_case() {
