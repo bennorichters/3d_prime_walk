@@ -203,4 +203,158 @@ mod tests {
         let a = p.intersect(&c1, &c2);
         assert!(a.is_none());
     }
+
+    #[test]
+    fn test_plane_intersect_normal_case() {
+        // Plane parallel to XY plane at z = 5
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 5.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 5.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 5.0 },
+        };
+
+        // Line segment from (0, 0, 0) to (0, 0, 10) should intersect at (0, 0, 5)
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 0.0, y: 0.0, z: 10.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_some());
+        let point = result.unwrap();
+        assert!((point.x - 0.0).abs() < 1e-10);
+        assert!((point.y - 0.0).abs() < 1e-10);
+        assert!((point.z - 5.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_plane_intersect_parallel_line() {
+        // Plane parallel to XY plane at z = 5
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 5.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 5.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 5.0 },
+        };
+
+        // Line segment parallel to the plane (in XY plane at z = 0)
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 10.0, y: 10.0, z: 0.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_plane_intersect_segment_too_short() {
+        // Plane parallel to XY plane at z = 5
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 5.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 5.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 5.0 },
+        };
+
+        // Line segment doesn't reach the plane
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 0.0, y: 0.0, z: 3.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_plane_intersect_segment_past_plane() {
+        // Plane parallel to XY plane at z = 5
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 5.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 5.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 5.0 },
+        };
+
+        // Line segment starts after the plane
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 6.0 };
+        let end = Tuple3D { x: 0.0, y: 0.0, z: 10.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_plane_intersect_at_start_point() {
+        // Plane parallel to XY plane at z = 0
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 0.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 0.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 0.0 },
+        };
+
+        // Line segment starts on the plane
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 0.0, y: 0.0, z: 10.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_some());
+        let point = result.unwrap();
+        assert!((point.x - 0.0).abs() < 1e-10);
+        assert!((point.y - 0.0).abs() < 1e-10);
+        assert!((point.z - 0.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_plane_intersect_at_end_point() {
+        // Plane parallel to XY plane at z = 10
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 10.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 10.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 10.0 },
+        };
+
+        // Line segment ends on the plane
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 0.0, y: 0.0, z: 10.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_some());
+        let point = result.unwrap();
+        assert!((point.x - 0.0).abs() < 1e-10);
+        assert!((point.y - 0.0).abs() < 1e-10);
+        assert!((point.z - 10.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_plane_intersect_angled_plane() {
+        // Plane defined by three points forming a diagonal plane
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 0.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 1.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 0.0 },
+        };
+
+        // Line segment from (0.5, 0.5, -1) to (0.5, 0.5, 2)
+        // Should intersect at (0.5, 0.5, 0.5)
+        let start = Tuple3D { x: 0.5, y: 0.5, z: -1.0 };
+        let end = Tuple3D { x: 0.5, y: 0.5, z: 2.0 };
+
+        let result = plane.intersect(&start, &end);
+        assert!(result.is_some());
+        let point = result.unwrap();
+        assert!((point.x - 0.5).abs() < 1e-10);
+        assert!((point.y - 0.5).abs() < 1e-10);
+        assert!((point.z - 0.5).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_plane_intersect_segment_in_plane() {
+        // Plane parallel to XY plane at z = 0
+        let plane = Plane {
+            point1: Tuple3D { x: 0.0, y: 0.0, z: 0.0 },
+            point2: Tuple3D { x: 1.0, y: 0.0, z: 0.0 },
+            point3: Tuple3D { x: 0.0, y: 1.0, z: 0.0 },
+        };
+
+        // Line segment lies entirely in the plane
+        let start = Tuple3D { x: 0.0, y: 0.0, z: 0.0 };
+        let end = Tuple3D { x: 1.0, y: 1.0, z: 0.0 };
+
+        let result = plane.intersect(&start, &end);
+        // Should return None because the line is parallel (lies in the plane)
+        assert!(result.is_none());
+    }
 }
