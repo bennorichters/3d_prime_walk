@@ -68,6 +68,7 @@ impl Projection {
         let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
 
         let mut prev_coord: Option<(f64, (usize, usize))> = None;
+        let mut prev_3d_coord: Option<Tuple3D> = None;
 
         for pixel3d in pixels3d {
             let dist_coord_option =
@@ -94,8 +95,37 @@ impl Projection {
                 }
 
                 prev_coord = Some((distance, (x, y)));
+                prev_3d_coord = Some(pixel3d.coordinate);
             } else {
+                // Try to find edge intersection
+                if let Some(prev_3d) = prev_3d_coord {
+                    let edge_results = self.edge(&prev_3d, &pixel3d.coordinate);
+
+                    // Find first non-None value
+                    if let Some(intersection) = edge_results.iter().find_map(|&opt| opt) {
+                        // Project the intersection point
+                        if let Some(relative_coords) = self.screen.project(&self.camera, &intersection) {
+                            let distance = self.camera.coordinate_squared_distance(&intersection);
+                            let (x, y) = relative_coords;
+                            let color = egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
+
+                            if let Some((_, prev_xy)) = prev_coord {
+                                // Draw line from previous to intersection using current pixel's color
+                                self.draw_line(
+                                    prev_xy,
+                                    (x, y),
+                                    color,
+                                    distance,
+                                    &mut pixels2d,
+                                    &mut distances,
+                                );
+                            }
+                        }
+                    }
+                }
+
                 prev_coord = None;
+                prev_3d_coord = Some(pixel3d.coordinate);
             }
         }
 
