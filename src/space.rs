@@ -63,7 +63,7 @@ pub struct Screen {
     vector_v: Tuple3D,
     width: usize,
     height: usize,
-    corners: [Tuple3D; 4],
+    pub corners: [Tuple3D; 4],
 }
 
 impl Screen {
@@ -138,40 +138,6 @@ impl Screen {
         }
 
         Some((pixel_x as usize, pixel_y as usize))
-    }
-
-    pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
-        let [top_left, top_right, bottom_left, bottom_right] = self.corners;
-
-        let planes = [
-            Plane {
-                point1: top_left,
-                point2: top_right,
-                point3: self.coordinate,
-            },
-            Plane {
-                point1: top_right,
-                point2: bottom_right,
-                point3: self.coordinate,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: bottom_right,
-                point3: self.coordinate,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: top_left,
-                point3: self.coordinate,
-            },
-        ];
-
-        [
-            planes[0].intersect(start, end),
-            planes[1].intersect(start, end),
-            planes[2].intersect(start, end),
-            planes[3].intersect(start, end),
-        ]
     }
 }
 

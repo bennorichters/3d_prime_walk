@@ -1,4 +1,4 @@
-use crate::space::{Pixel3D, Screen, Tuple3D};
+use crate::space::{Pixel3D, Plane, Screen, Tuple3D};
 use eframe::egui;
 use std::f64::consts::PI;
 
@@ -104,6 +104,40 @@ impl Projection {
             source_size: egui::Vec2::new(SIZE as f32, SIZE as f32),
             pixels: pixels2d,
         }
+    }
+
+    pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
+        let [top_left, top_right, bottom_left, bottom_right] = self.screen.corners;
+
+        let planes = [
+            Plane {
+                point1: top_left,
+                point2: top_right,
+                point3: self.camera,
+            },
+            Plane {
+                point1: top_right,
+                point2: bottom_right,
+                point3: self.camera,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: bottom_right,
+                point3: self.camera,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: top_left,
+                point3: self.camera,
+            },
+        ];
+
+        [
+            planes[0].intersect(start, end),
+            planes[1].intersect(start, end),
+            planes[2].intersect(start, end),
+            planes[3].intersect(start, end),
+        ]
     }
 }
 
