@@ -102,6 +102,8 @@ pub struct Projection {
     camera: Tuple3D,
     screen: Screen,
     planes: [Plane; 4],
+    pixel_buffer: Vec<egui::Color32>,
+    distance_buffer: Vec<f64>,
 }
 
 impl Projection {
@@ -119,6 +121,8 @@ impl Projection {
             camera,
             screen,
             planes,
+            pixel_buffer: vec![egui::Color32::BLACK; SIZE * SIZE],
+            distance_buffer: vec![f64::MAX; SIZE * SIZE],
         }
     }
 
@@ -235,9 +239,14 @@ impl Projection {
         }
     }
 
-    pub fn map_to_pixels2d(&self, pixels3d: &[Pixel3D]) -> egui::ColorImage {
-        let mut pixels2d: Vec<egui::Color32> = vec![egui::Color32::BLACK; SIZE * SIZE];
-        let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
+    pub fn map_to_pixels2d(&mut self, pixels3d: &[Pixel3D]) -> egui::ColorImage {
+        // Take ownership of buffers temporarily to avoid borrow conflicts
+        let mut pixels2d = std::mem::take(&mut self.pixel_buffer);
+        let mut distances = std::mem::take(&mut self.distance_buffer);
+
+        // Ensure buffers are the right size and reset them
+        pixels2d.resize(SIZE * SIZE, egui::Color32::BLACK);
+        distances.resize(SIZE * SIZE, f64::MAX);
 
         let mut prev_coord: Option<(f64, (usize, usize))> = None;
         let mut prev_3d_coord: Option<Tuple3D> = None;
@@ -270,6 +279,9 @@ impl Projection {
                 prev_3d_coord = Some(pixel3d.coordinate);
             }
         }
+
+        // Store buffers back for reuse (clone pixel_buffer since we return it)
+        self.distance_buffer = distances;
 
         egui::ColorImage {
             size: [SIZE, SIZE],

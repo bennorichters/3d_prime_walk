@@ -22,7 +22,7 @@ impl PrimeWalkApp {
     }
 
     fn update_image(&mut self, ctx: &egui::Context) {
-        let projection = self.orbit.projection();
+        let mut projection = self.orbit.projection();
         let color_image = projection.map_to_pixels2d(&self.pixels);
 
         if let Some(texture) = &mut self.texture {
