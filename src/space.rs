@@ -123,7 +123,7 @@ impl Screen {
         [top_left, top_right, bottom_left, bottom_right]
     }
 
-    pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> Vec<Tuple3D> {
+    pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
         let [top_left, top_right, bottom_left, bottom_right] = self.corners();
 
         let planes = [
@@ -149,14 +149,12 @@ impl Screen {
             },
         ];
 
-        let mut intersections = Vec::new();
-        for plane in &planes {
-            if let Some(intersection) = plane.intersect(start, end) {
-                intersections.push(intersection);
-            }
-        }
-
-        intersections
+        [
+            planes[0].intersect(start, end),
+            planes[1].intersect(start, end),
+            planes[2].intersect(start, end),
+            planes[3].intersect(start, end),
+        ]
     }
 }
 
