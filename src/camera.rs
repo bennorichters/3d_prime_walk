@@ -22,26 +22,10 @@ impl Projection {
         let [top_left, top_right, bottom_left, bottom_right] = screen.corners;
 
         let planes = [
-            Plane {
-                point1: top_left,
-                point2: top_right,
-                point3: camera,
-            },
-            Plane {
-                point1: top_right,
-                point2: bottom_right,
-                point3: camera,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: bottom_right,
-                point3: camera,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: top_left,
-                point3: camera,
-            },
+            Plane::new(top_left, top_right, camera),
+            Plane::new(top_right, bottom_right, camera),
+            Plane::new(bottom_left, bottom_right, camera),
+            Plane::new(bottom_left, top_left, camera),
         ];
 
         Self {

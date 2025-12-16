@@ -142,12 +142,20 @@ impl Screen {
 }
 
 pub struct Plane {
-    pub point1: Tuple3D,
-    pub point2: Tuple3D,
-    pub point3: Tuple3D,
+    point1: Tuple3D,
+    point2: Tuple3D,
+    point3: Tuple3D,
 }
 
 impl Plane {
+    pub fn new(point1: Tuple3D, point2: Tuple3D, point3: Tuple3D) -> Self {
+        Self {
+            point1,
+            point2,
+            point3,
+        }
+    }
+
     pub fn intersect(&self, start: &Tuple3D, end: &Tuple3D) -> Option<Tuple3D> {
         // Calculate two vectors in the plane
         let v1 = self.point2.sub(&self.point1);
@@ -261,23 +269,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_normal_case() {
         // Plane parallel to XY plane at z = 5
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 5.0,
             },
-        };
+        );
 
         // Line segment from (0, 0, 0) to (0, 0, 10) should intersect at (0, 0, 5)
         let start = Tuple3D {
@@ -302,23 +310,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_parallel_line() {
         // Plane parallel to XY plane at z = 5
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 5.0,
             },
-        };
+        );
 
         // Line segment parallel to the plane (in XY plane at z = 0)
         let start = Tuple3D {
@@ -339,23 +347,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_segment_too_short() {
         // Plane parallel to XY plane at z = 5
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 5.0,
             },
-        };
+        );
 
         // Line segment doesn't reach the plane
         let start = Tuple3D {
@@ -376,23 +384,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_segment_past_plane() {
         // Plane parallel to XY plane at z = 5
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 5.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 5.0,
             },
-        };
+        );
 
         // Line segment starts after the plane
         let start = Tuple3D {
@@ -413,23 +421,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_at_start_point() {
         // Plane parallel to XY plane at z = 0
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 0.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
             },
-        };
+        );
 
         // Line segment starts on the plane
         let start = Tuple3D {
@@ -454,23 +462,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_at_end_point() {
         // Plane parallel to XY plane at z = 10
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 10.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 10.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 10.0,
             },
-        };
+        );
 
         // Line segment ends on the plane
         let start = Tuple3D {
@@ -495,23 +503,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_angled_plane() {
         // Plane defined by three points forming a diagonal plane
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 1.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
             },
-        };
+        );
 
         // Line segment from (0.5, 0.5, -1) to (0.5, 0.5, 2)
         // Should intersect at (0.5, 0.5, 0.5)
@@ -537,23 +545,23 @@ mod tests {
     #[test]
     fn test_plane_intersect_segment_in_plane() {
         // Plane parallel to XY plane at z = 0
-        let plane = Plane {
-            point1: Tuple3D {
+        let plane = Plane::new(
+            Tuple3D {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
             },
-            point2: Tuple3D {
+            Tuple3D {
                 x: 1.0,
                 y: 0.0,
                 z: 0.0,
             },
-            point3: Tuple3D {
+            Tuple3D {
                 x: 0.0,
                 y: 1.0,
                 z: 0.0,
             },
-        };
+        );
 
         // Line segment lies entirely in the plane
         let start = Tuple3D {
