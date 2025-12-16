@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::{camera::Orbit, space::Pixel3D, SIZE};
+use crate::{SIZE, camera::Orbit, space::Pixel3D};
 
 pub struct PrimeWalkApp {
     pixels: Vec<Pixel3D>,

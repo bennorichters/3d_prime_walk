@@ -70,14 +70,16 @@ impl Projection {
         let mut prev_coord: Option<(f64, (usize, usize))> = None;
 
         for pixel3d in pixels3d {
-            let dist_coord_option = self.screen.project(&self.camera, &pixel3d.coordinate).map(
-                |relative_coords| {
-                    let distance = self.camera.coordinate_squared_distance(&pixel3d.coordinate);
-                    (distance, relative_coords)
-                },
-            );
+            let dist_coord_option =
+                self.screen
+                    .project(&self.camera, &pixel3d.coordinate)
+                    .map(|relative_coords| {
+                        let distance = self.camera.coordinate_squared_distance(&pixel3d.coordinate);
+                        (distance, relative_coords)
+                    });
             if let Some((distance, (x, y))) = dist_coord_option {
-                let color = egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
+                let color =
+                    egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
 
                 if let Some((_, prev_xy)) = prev_coord {
                     // Draw line from previous to current using current pixel's color
