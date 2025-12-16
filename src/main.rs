@@ -4,6 +4,7 @@ mod app;
 mod camera;
 mod color_gradient;
 mod cube;
+mod data_walk;
 mod prime_walk;
 mod primes;
 mod space;
