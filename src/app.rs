@@ -133,6 +133,29 @@ impl eframe::App for PrimeWalkApp {
             ));
             ui.label(format!("Camera radius: {:.1}", self.orbit.camera_radius()));
             ui.label(format!("Focal length: {:.1}", self.orbit.focal_length()));
+
+            ui.add_space(10.0);
+            ui.heading("Keyboard Controls");
+            ui.separator();
+
+            ui.label("Rotation:");
+            ui.label("  H/L - Azimuth");
+            ui.label("  J/K - Polar");
+            ui.label("  R/Shift+R - Rotation");
+
+            ui.add_space(5.0);
+            ui.label("Camera:");
+            ui.label("  Z/Shift+Z - Distance");
+            ui.label("  F/Shift+F - Focal Length");
+
+            ui.add_space(5.0);
+            ui.label("Center Position:");
+            ui.label("  A/Shift+A - X axis");
+            ui.label("  S/Shift+S - Y axis");
+            ui.label("  W/Shift+W - Z axis");
+
+            ui.add_space(5.0);
+            ui.label("D - Reset to defaults");
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
