@@ -108,7 +108,7 @@ impl Screen {
 
         let dist1 = camera.sub(&self.coordinate).dot(&n);
         let dist2 = target.sub(&self.coordinate).dot(&n);
-        if dist1 * dist2 <= 0.0 {
+        if dist1 * dist2 <= 0.0 || dist1.abs() >= dist2.abs() {
             return None;
         }
 
@@ -216,6 +216,43 @@ impl Plane {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_above_camera() {
+        let s = Screen::new(
+            Tuple3D {
+                x: 0.0,
+                y: 0.0,
+                z: 42.0,
+            },
+            Tuple3D {
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Tuple3D {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            800,
+            800,
+        );
+
+        let camera = Tuple3D {
+            x: 0.0,
+            y: 0.0,
+            z: 2.0,
+        };
+        let target = Tuple3D {
+            x: 0.0,
+            y: 3.0,
+            z: 2.0,
+        };
+
+        let a = s.project(&camera, &target);
+        assert!(a.is_none());
+    }
 
     #[test]
     fn test_parallel() {
