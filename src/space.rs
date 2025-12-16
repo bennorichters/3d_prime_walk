@@ -131,12 +131,8 @@ impl Screen {
         Some((pixel_x as usize, pixel_y as usize))
     }
 
-    pub fn corners(&self) -> [Tuple3D; 4] {
-        self.corners
-    }
-
     pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
-        let [top_left, top_right, bottom_left, bottom_right] = self.corners();
+        let [top_left, top_right, bottom_left, bottom_right] = self.corners;
 
         let planes = [
             Plane {
