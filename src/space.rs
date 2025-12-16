@@ -124,6 +124,12 @@ impl Screen {
     }
 }
 
+pub struct Plane {
+    pub point1: Tuple3D,
+    pub point2: Tuple3D,
+    pub point3: Tuple3D,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
