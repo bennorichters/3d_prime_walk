@@ -11,13 +11,13 @@ pub struct PrimeWalkApp {
 }
 
 impl PrimeWalkApp {
-    fn new(pixels: Vec<Pixel3D>) -> Self {
+    fn new(pixels: Vec<Pixel3D>, default_camera_radius: f64, default_focal_length: f64) -> Self {
         Self {
             pixels,
-            orbit: Orbit::new(300.0, 40.0, SIZE, SIZE),
+            orbit: Orbit::new(default_camera_radius, default_focal_length, SIZE, SIZE),
             texture: None,
-            default_camera_radius: 300.0,
-            default_focal_length: 40.0,
+            default_camera_radius,
+            default_focal_length,
         }
     }
 
@@ -162,6 +162,6 @@ pub fn image(pixels: Vec<Pixel3D>) {
     let _ = eframe::run_native(
         "3D Prime Walk",
         options,
-        Box::new(|_cc| Ok(Box::new(PrimeWalkApp::new(pixels)))),
+        Box::new(|_cc| Ok(Box::new(PrimeWalkApp::new(pixels, 300.0, 40.0)))),
     );
 }
