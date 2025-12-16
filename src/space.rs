@@ -122,6 +122,42 @@ impl Screen {
 
         [top_left, top_right, bottom_left, bottom_right]
     }
+
+    pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> Vec<Tuple3D> {
+        let [top_left, top_right, bottom_left, bottom_right] = self.corners();
+
+        let planes = [
+            Plane {
+                point1: top_left,
+                point2: top_right,
+                point3: self.coordinate,
+            },
+            Plane {
+                point1: top_right,
+                point2: bottom_right,
+                point3: self.coordinate,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: bottom_right,
+                point3: self.coordinate,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: top_left,
+                point3: self.coordinate,
+            },
+        ];
+
+        let mut intersections = Vec::new();
+        for plane in &planes {
+            if let Some(intersection) = plane.intersect(start, end) {
+                intersections.push(intersection);
+            }
+        }
+
+        intersections
+    }
 }
 
 pub struct Plane {
