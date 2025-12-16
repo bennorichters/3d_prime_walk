@@ -64,6 +64,8 @@ pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::Co
             }
 
             prev_coord = Some((distance, (x, y)));
+        } else {
+            prev_coord = None;
         }
     }
 
