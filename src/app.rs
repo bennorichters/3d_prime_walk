@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::{SIZE, camera::Orbit, camera::Projection, space::Pixel3D};
+use crate::{camera::Orbit, camera::Projection, space::Pixel3D, SIZE};
 
 fn draw_line(
     from: (usize, usize),
@@ -60,7 +60,14 @@ pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::Co
 
             if let Some((_, prev_xy)) = prev_coord {
                 // Draw line from previous to current using current pixel's color
-                draw_line(prev_xy, (x, y), color, distance, &mut pixels2d, &mut distances);
+                draw_line(
+                    prev_xy,
+                    (x, y),
+                    color,
+                    distance,
+                    &mut pixels2d,
+                    &mut distances,
+                );
             }
 
             prev_coord = Some((distance, (x, y)));
