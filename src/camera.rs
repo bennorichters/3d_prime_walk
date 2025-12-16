@@ -14,11 +14,41 @@ fn rad(angle: u16) -> f64 {
 pub struct Projection {
     camera: Tuple3D,
     screen: Screen,
+    planes: [Plane; 4],
 }
 
 impl Projection {
     fn new(camera: Tuple3D, screen: Screen) -> Self {
-        Self { camera, screen }
+        let [top_left, top_right, bottom_left, bottom_right] = screen.corners;
+
+        let planes = [
+            Plane {
+                point1: top_left,
+                point2: top_right,
+                point3: camera,
+            },
+            Plane {
+                point1: top_right,
+                point2: bottom_right,
+                point3: camera,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: bottom_right,
+                point3: camera,
+            },
+            Plane {
+                point1: bottom_left,
+                point2: top_left,
+                point3: camera,
+            },
+        ];
+
+        Self {
+            camera,
+            screen,
+            planes,
+        }
     }
 
     fn draw_line(
@@ -178,36 +208,11 @@ impl Projection {
     }
 
     pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
-        let [top_left, top_right, bottom_left, bottom_right] = self.screen.corners;
-
-        let planes = [
-            Plane {
-                point1: top_left,
-                point2: top_right,
-                point3: self.camera,
-            },
-            Plane {
-                point1: top_right,
-                point2: bottom_right,
-                point3: self.camera,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: bottom_right,
-                point3: self.camera,
-            },
-            Plane {
-                point1: bottom_left,
-                point2: top_left,
-                point3: self.camera,
-            },
-        ];
-
         [
-            planes[0].intersect(start, end),
-            planes[1].intersect(start, end),
-            planes[2].intersect(start, end),
-            planes[3].intersect(start, end),
+            self.planes[0].intersect(start, end),
+            self.planes[1].intersect(start, end),
+            self.planes[2].intersect(start, end),
+            self.planes[3].intersect(start, end),
         ]
     }
 }
