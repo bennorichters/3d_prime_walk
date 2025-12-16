@@ -17,17 +17,6 @@ pub struct Projection {
 }
 
 impl Projection {
-    pub fn project(&self, target: &Tuple3D) -> Option<(f64, (usize, usize))> {
-        let relative_option = self.screen.project(&self.camera, target);
-        if let Some(relative_coords) = relative_option {
-            let distance = self.camera.coordinate_squared_distance(target);
-
-            return Some((distance, relative_coords));
-        }
-
-        None
-    }
-
     fn draw_line(
         &self,
         from: (usize, usize),
@@ -81,7 +70,12 @@ impl Projection {
         let mut prev_coord: Option<(f64, (usize, usize))> = None;
 
         for pixel3d in pixels3d {
-            let dist_coord_option = self.project(&pixel3d.coordinate);
+            let dist_coord_option = self.screen.project(&self.camera, &pixel3d.coordinate).map(
+                |relative_coords| {
+                    let distance = self.camera.coordinate_squared_distance(&pixel3d.coordinate);
+                    (distance, relative_coords)
+                },
+            );
             if let Some((distance, (x, y))) = dist_coord_option {
                 let color = egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
 
