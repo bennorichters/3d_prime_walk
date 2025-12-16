@@ -145,7 +145,9 @@ impl eframe::App for PrimeWalkApp {
             }
         });
 
-        ctx.request_repaint();
+        if needs_update {
+            ctx.request_repaint();
+        }
     }
 }
 
