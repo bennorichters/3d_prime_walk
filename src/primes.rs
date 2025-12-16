@@ -4,11 +4,6 @@ pub struct Primes {
 }
 
 impl Primes {
-    pub fn new() -> Self {
-        // Default to a reasonable limit for backwards compatibility
-        Self::with_limit(100_000)
-    }
-
     pub fn with_limit(limit: usize) -> Self {
         let primes = Self::sieve_of_eratosthenes(limit);
         Primes { primes, index: 0 }
