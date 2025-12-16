@@ -151,7 +151,7 @@ impl eframe::App for PrimeWalkApp {
     }
 }
 
-pub fn image(pixels: Vec<Pixel3D>) {
+pub fn image(pixels: Vec<Pixel3D>, default_camera_radius: f64, default_focal_length: f64) {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([SIZE as f32, SIZE as f32])
@@ -162,6 +162,6 @@ pub fn image(pixels: Vec<Pixel3D>) {
     let _ = eframe::run_native(
         "3D Prime Walk",
         options,
-        Box::new(|_cc| Ok(Box::new(PrimeWalkApp::new(pixels, 300.0, 40.0)))),
+        Box::new(|_cc| Ok(Box::new(PrimeWalkApp::new(pixels, default_camera_radius, default_focal_length)))),
     );
 }

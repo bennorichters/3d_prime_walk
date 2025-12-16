@@ -56,5 +56,5 @@ fn main() {
         _ => prime_walk::walk(steps, gradient),
     };
 
-    app::image(pixels);
+    app::image(pixels, 300.0, 40.0);
 }
