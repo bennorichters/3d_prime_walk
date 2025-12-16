@@ -12,8 +12,8 @@ pub const SIZE: usize = 800;
 const DEFAULT_STEPS: usize = 25_000;
 const DEFAULT_START_COLOR: (u8, u8, u8) = (255, 0, 0); // Red
 const DEFAULT_END_COLOR: (u8, u8, u8) = (0, 0, 255); // Blue
-const DEFAULT_CAMERA_RADIUS: f64 = 300.0;
-const DEFAULT_FOCAL_LENGTH: f64 = 40.0;
+const DEFAULT_CAMERA_RADIUS: f64 = 600.0;
+const DEFAULT_FOCAL_LENGTH: f64 = 600.0;
 
 fn parse_color(s: &str) -> Option<(u8, u8, u8)> {
     let parts: Vec<&str> = s.split(',').collect();
