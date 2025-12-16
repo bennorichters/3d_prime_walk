@@ -130,6 +130,38 @@ pub struct Plane {
     pub point3: Tuple3D,
 }
 
+impl Plane {
+    pub fn intersect(&self, start: &Tuple3D, end: &Tuple3D) -> Option<Tuple3D> {
+        // Calculate two vectors in the plane
+        let v1 = self.point2.sub(&self.point1);
+        let v2 = self.point3.sub(&self.point1);
+
+        // Calculate plane normal
+        let n = v1.cross(&v2);
+
+        // Line segment direction
+        let d = end.sub(start);
+
+        // Check if line is parallel to plane
+        let denom = n.dot(&d);
+        if denom.abs() < 1e-10 {
+            return None;
+        }
+
+        // Calculate parameter t
+        let diff = self.point1.sub(start);
+        let t = n.dot(&diff) / denom;
+
+        // Check if intersection is within segment bounds
+        if t < 0.0 || t > 1.0 {
+            return None;
+        }
+
+        // Calculate intersection point
+        Some(start.add(&d.scale(t)))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
