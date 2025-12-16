@@ -64,6 +64,7 @@ pub struct Screen {
     width: usize,
     height: usize,
     pub corners: [Tuple3D; 4],
+    normal: Tuple3D,
 }
 
 impl Screen {
@@ -93,6 +94,8 @@ impl Screen {
             .add(&vector_u.scale(half_width))
             .add(&vector_v.scale(half_height));
 
+        let normal = vector_u.cross(&vector_v);
+
         Screen {
             coordinate,
             vector_u,
@@ -100,20 +103,19 @@ impl Screen {
             width,
             height,
             corners: [top_left, top_right, bottom_left, bottom_right],
+            normal,
         }
     }
 
     pub fn project(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
-        let n = self.vector_u.cross(&self.vector_v);
-
-        let dist1 = camera.sub(&self.coordinate).dot(&n);
-        let dist2 = target.sub(&self.coordinate).dot(&n);
+        let dist1 = camera.sub(&self.coordinate).dot(&self.normal);
+        let dist2 = target.sub(&self.coordinate).dot(&self.normal);
         if dist1 * dist2 <= 0.0 || dist1.abs() >= dist2.abs() {
             return None;
         }
 
         let d = target.sub(camera);
-        let denom = d.dot(&n);
+        let denom = d.dot(&self.normal);
         let t = -dist1 / denom;
         let q = camera.add(&d.scale(t));
 
