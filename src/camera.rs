@@ -235,13 +235,7 @@ impl Projection {
         let edge_results = self.edge(prev_3d, current_3d);
 
         if let Some(intersection) = edge_results.iter().find_map(|&opt| opt) {
-            self.handle_projected_point(
-                &intersection,
-                pixel3d,
-                prev_coord,
-                pixels2d,
-                distances,
-            );
+            self.handle_projected_point(&intersection, pixel3d, prev_coord, pixels2d, distances);
         }
     }
 
