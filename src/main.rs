@@ -4,6 +4,7 @@ mod app;
 mod camera;
 mod color_gradient;
 mod cube;
+mod data_walk;
 mod prime_walk;
 mod primes;
 mod space;
@@ -55,6 +56,7 @@ fn main() {
 
     let pixels = match walk_mode {
         "cube" => cube::walk(steps, gradient),
+        "data_walk" => data_walk::walk(steps, gradient),
         _ => prime_walk::walk(steps, gradient),
     };
 
