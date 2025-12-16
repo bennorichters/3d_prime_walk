@@ -1,8 +1,9 @@
-use crate::{color_gradient::ColorGradient, prime_walk::walk};
+use crate::color_gradient::ColorGradient;
 
 mod app;
 mod camera;
 mod color_gradient;
+mod cube;
 mod prime_walk;
 mod primes;
 mod space;
@@ -43,8 +44,17 @@ fn main() {
         .and_then(|arg| parse_color(arg))
         .unwrap_or(DEFAULT_END_COLOR);
 
+    let walk_mode = args
+        .get(4)
+        .map(|s| s.as_str())
+        .unwrap_or("prime_walk");
+
     let gradient = ColorGradient::new(start_color, end_color, steps);
-    let pixels = walk(steps, gradient);
+
+    let pixels = match walk_mode {
+        "cube" => cube::walk(steps, gradient),
+        _ => prime_walk::walk(steps, gradient),
+    };
 
     app::image(pixels);
 }
