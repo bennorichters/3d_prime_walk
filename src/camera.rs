@@ -9,6 +9,8 @@ pub struct Screen {
     screen_center: Tuple3D,
     vector_u: Tuple3D,
     vector_v: Tuple3D,
+    vector_u_dot: f64,
+    vector_v_dot: f64,
     width: usize,
     height: usize,
     pub corners: [Tuple3D; 4],
@@ -43,11 +45,15 @@ impl Screen {
             .add(&vector_v.scale(half_height));
 
         let normal = vector_u.cross(&vector_v);
+        let vector_u_dot = vector_u.dot(&vector_u);
+        let vector_v_dot = vector_v.dot(&vector_v);
 
         Screen {
             screen_center: coordinate,
             vector_u,
             vector_v,
+            vector_u_dot,
+            vector_v_dot,
             width,
             height,
             corners: [top_left, top_right, bottom_left, bottom_right],
@@ -68,8 +74,8 @@ impl Screen {
         let q = camera.add(&d.scale(t));
 
         let diff = q.sub(&self.screen_center);
-        let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
-        let v = diff.dot(&self.vector_v) / self.vector_v.dot(&self.vector_v);
+        let u = diff.dot(&self.vector_u) / self.vector_u_dot;
+        let v = diff.dot(&self.vector_v) / self.vector_v_dot;
 
         // Convert to pixel coordinates (coordinate is the center of the plane)
         let half_width = self.width as f64 / 2.0;
