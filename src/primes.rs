@@ -1,10 +1,43 @@
 pub struct Primes {
     primes: Vec<u64>,
+    index: usize,
 }
 
 impl Primes {
     pub fn new() -> Self {
-        Primes { primes: Vec::new() }
+        // Default to a reasonable limit for backwards compatibility
+        Self::with_limit(100_000)
+    }
+
+    pub fn with_limit(limit: usize) -> Self {
+        let primes = Self::sieve_of_eratosthenes(limit);
+        Primes { primes, index: 0 }
+    }
+
+    fn sieve_of_eratosthenes(limit: usize) -> Vec<u64> {
+        if limit < 2 {
+            return Vec::new();
+        }
+
+        let mut is_prime = vec![true; limit + 1];
+        is_prime[0] = false;
+        is_prime[1] = false;
+
+        let mut p = 2;
+        while p * p <= limit {
+            if is_prime[p] {
+                for multiple in (p * p..=limit).step_by(p) {
+                    is_prime[multiple] = false;
+                }
+            }
+            p += 1;
+        }
+
+        is_prime
+            .iter()
+            .enumerate()
+            .filter_map(|(num, &prime)| if prime { Some(num as u64) } else { None })
+            .collect()
     }
 }
 
@@ -12,32 +45,12 @@ impl Iterator for Primes {
     type Item = u64;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let candidate = match self.primes.last() {
-            None => 2,
-            Some(&2) => 3,
-            Some(&p) => {
-                let mut c = p + 2;
-                while !self.is_prime(c) {
-                    c += 2;
-                }
-                c
-            }
-        };
-        self.primes.push(candidate);
-        Some(candidate)
-    }
-}
-
-impl Primes {
-    fn is_prime(&self, n: u64) -> bool {
-        for &p in &self.primes {
-            if p * p > n {
-                return true;
-            }
-            if n.is_multiple_of(p) {
-                return false;
-            }
+        if self.index < self.primes.len() {
+            let prime = self.primes[self.index];
+            self.index += 1;
+            Some(prime)
+        } else {
+            None
         }
-        true
     }
 }

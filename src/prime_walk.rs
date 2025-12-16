@@ -37,7 +37,7 @@ pub fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     let mut dir_it = DirIterator { index: 0 };
 
     let mut dir = dir_it.next().unwrap();
-    let mut primes = Primes::new();
+    let mut primes = Primes::with_limit(steps);
     let mut p = primes.next().unwrap();
     for n in 0..steps {
         if n == (p as usize) {
