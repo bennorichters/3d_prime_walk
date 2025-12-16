@@ -143,39 +143,34 @@ impl Screen {
 
 pub struct Plane {
     point1: Tuple3D,
-    point2: Tuple3D,
-    point3: Tuple3D,
+    normal: Tuple3D,
 }
 
 impl Plane {
     pub fn new(point1: Tuple3D, point2: Tuple3D, point3: Tuple3D) -> Self {
-        Self {
-            point1,
-            point2,
-            point3,
-        }
+        // Calculate two vectors in the plane
+        let v1 = point2.sub(&point1);
+        let v2 = point3.sub(&point1);
+
+        // Calculate plane normal
+        let normal = v1.cross(&v2);
+
+        Self { point1, normal }
     }
 
     pub fn intersect(&self, start: &Tuple3D, end: &Tuple3D) -> Option<Tuple3D> {
-        // Calculate two vectors in the plane
-        let v1 = self.point2.sub(&self.point1);
-        let v2 = self.point3.sub(&self.point1);
-
-        // Calculate plane normal
-        let n = v1.cross(&v2);
-
         // Line segment direction
         let d = end.sub(start);
 
         // Check if line is parallel to plane
-        let denom = n.dot(&d);
+        let denom = self.normal.dot(&d);
         if denom.abs() < 1e-10 {
             return None;
         }
 
         // Calculate parameter t
         let diff = self.point1.sub(start);
-        let t = n.dot(&diff) / denom;
+        let t = self.normal.dot(&diff) / denom;
 
         // Check if intersection is within segment bounds
         if !(0.0..=1.0).contains(&t) {
