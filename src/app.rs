@@ -2,19 +2,68 @@ use eframe::egui;
 
 use crate::{SIZE, camera::Orbit, camera::Projection, space::Pixel3D};
 
+fn draw_line(
+    from: (usize, usize),
+    to: (usize, usize),
+    color: egui::Color32,
+    distance: f64,
+    pixels2d: &mut [egui::Color32],
+    distances: &mut [f64],
+) {
+    let (x0, y0) = (from.0 as isize, from.1 as isize);
+    let (x1, y1) = (to.0 as isize, to.1 as isize);
+
+    let dx = (x1 - x0).abs();
+    let dy = (y1 - y0).abs();
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let mut err = dx - dy;
+
+    let mut x = x0;
+    let mut y = y0;
+
+    loop {
+        if x >= 0 && x < SIZE as isize && y >= 0 && y < SIZE as isize {
+            let index = (y as usize) * SIZE + (x as usize);
+            if distance < distances[index] {
+                pixels2d[index] = color;
+                distances[index] = distance;
+            }
+        }
+
+        if x == x1 && y == y1 {
+            break;
+        }
+
+        let e2 = 2 * err;
+        if e2 > -dy {
+            err -= dy;
+            x += sx;
+        }
+        if e2 < dx {
+            err += dx;
+            y += sy;
+        }
+    }
+}
+
 pub fn map_to_pixels2d(pixels3d: &[Pixel3D], projection: Projection) -> egui::ColorImage {
     let mut pixels2d: Vec<egui::Color32> = vec![egui::Color32::BLACK; SIZE * SIZE];
     let mut distances: Vec<f64> = vec![f64::MAX; SIZE * SIZE];
 
+    let mut prev_coord: Option<(f64, (usize, usize))> = None;
+
     for pixel3d in pixels3d {
         let dist_coord_option = projection.project(&pixel3d.coordinate);
         if let Some((distance, (x, y))) = dist_coord_option {
-            let index = y * SIZE + x;
-            if distance < distances[index] {
-                pixels2d[index] =
-                    egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
-                distances[index] = distance;
+            let color = egui::Color32::from_rgb(pixel3d.color.0, pixel3d.color.1, pixel3d.color.2);
+
+            if let Some((_, prev_xy)) = prev_coord {
+                // Draw line from previous to current using current pixel's color
+                draw_line(prev_xy, (x, y), color, distance, &mut pixels2d, &mut distances);
             }
+
+            prev_coord = Some((distance, (x, y)));
         }
     }
 
