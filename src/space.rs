@@ -58,7 +58,7 @@ pub struct Pixel3D {
 
 #[derive(Debug)]
 pub struct Screen {
-    coordinate: Tuple3D,
+    screen_center: Tuple3D,
     vector_u: Tuple3D,
     vector_v: Tuple3D,
     width: usize,
@@ -97,7 +97,7 @@ impl Screen {
         let normal = vector_u.cross(&vector_v);
 
         Screen {
-            coordinate,
+            screen_center: coordinate,
             vector_u,
             vector_v,
             width,
@@ -108,8 +108,8 @@ impl Screen {
     }
 
     pub fn project(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
-        let dist1 = camera.sub(&self.coordinate).dot(&self.normal);
-        let dist2 = target.sub(&self.coordinate).dot(&self.normal);
+        let dist1 = camera.sub(&self.screen_center).dot(&self.normal);
+        let dist2 = target.sub(&self.screen_center).dot(&self.normal);
         if dist1 * dist2 <= 0.0 || dist1.abs() >= dist2.abs() {
             return None;
         }
@@ -119,7 +119,7 @@ impl Screen {
         let t = -dist1 / denom;
         let q = camera.add(&d.scale(t));
 
-        let diff = q.sub(&self.coordinate);
+        let diff = q.sub(&self.screen_center);
         let u = diff.dot(&self.vector_u) / self.vector_u.dot(&self.vector_u);
         let v = diff.dot(&self.vector_v) / self.vector_v.dot(&self.vector_v);
 
