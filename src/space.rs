@@ -97,7 +97,7 @@ impl Screen {
         }
     }
 
-    pub fn intersect(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
+    pub fn project(&self, camera: &Tuple3D, target: &Tuple3D) -> Option<(usize, usize)> {
         let n = self.vector_u.cross(&self.vector_v);
 
         let dist1 = camera.sub(&self.coordinate).dot(&n);
@@ -242,7 +242,7 @@ mod tests {
             z: 0.0,
         };
 
-        let a = p.intersect(&c1, &c2);
+        let a = p.project(&c1, &c2);
         assert!(a.is_none());
     }
 

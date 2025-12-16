@@ -15,7 +15,7 @@ pub struct Projection {
 
 impl Projection {
     pub fn project(&self, target: &Tuple3D) -> Option<(f64, (usize, usize))> {
-        let relative_option = self.screen.intersect(&self.camera, target);
+        let relative_option = self.screen.project(&self.camera, target);
         if let Some(relative_coords) = relative_option {
             let distance = self.camera.coordinate_squared_distance(target);
 
