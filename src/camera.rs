@@ -12,11 +12,15 @@ fn rad(angle: u16) -> f64 {
 }
 
 pub struct Projection {
-    pub camera: Tuple3D,
-    pub screen: Screen,
+    camera: Tuple3D,
+    screen: Screen,
 }
 
 impl Projection {
+    fn new(camera: Tuple3D, screen: Screen) -> Self {
+        Self { camera, screen }
+    }
+
     fn draw_line(
         &self,
         from: (usize, usize),
@@ -291,16 +295,16 @@ impl Orbit {
             z: sin_r * u_base.z + cos_r * v_base.z,
         };
 
-        Projection {
+        Projection::new(
             camera,
-            screen: Screen::new(
+            Screen::new(
                 screen_coordinate,
                 vector_u,
                 vector_v,
                 self.screen_width,
                 self.screen_height,
             ),
-        }
+        )
     }
 
     pub fn inc_polar(&mut self) -> Projection {
