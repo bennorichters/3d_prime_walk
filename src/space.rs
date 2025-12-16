@@ -153,7 +153,7 @@ impl Plane {
         let t = n.dot(&diff) / denom;
 
         // Check if intersection is within segment bounds
-        if t < 0.0 || t > 1.0 {
+        if !(0.0..=1.0).contains(&t) {
             return None;
         }
 
