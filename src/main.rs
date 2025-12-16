@@ -56,6 +56,7 @@ fn main() {
 
     let pixels = match walk_mode {
         "cube" => cube::walk(steps, gradient),
+        "data_walk" => data_walk::walk(steps, gradient),
         _ => prime_walk::walk(steps, gradient),
     };
 
