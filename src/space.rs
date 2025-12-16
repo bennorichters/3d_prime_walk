@@ -63,16 +63,37 @@ pub struct Screen {
     vector_v: Tuple3D,
     width: usize,
     height: usize,
+    corners: [Tuple3D; 4],
 }
 
 impl Screen {
     pub fn new(coordinate: Tuple3D, vector_u: Tuple3D, vector_v: Tuple3D, width: usize, height: usize) -> Self {
+        let half_width = width as f64 / 2.0;
+        let half_height = height as f64 / 2.0;
+
+        let top_left = coordinate
+            .add(&vector_u.scale(-half_width))
+            .add(&vector_v.scale(-half_height));
+
+        let top_right = coordinate
+            .add(&vector_u.scale(half_width))
+            .add(&vector_v.scale(-half_height));
+
+        let bottom_left = coordinate
+            .add(&vector_u.scale(-half_width))
+            .add(&vector_v.scale(half_height));
+
+        let bottom_right = coordinate
+            .add(&vector_u.scale(half_width))
+            .add(&vector_v.scale(half_height));
+
         Screen {
             coordinate,
             vector_u,
             vector_v,
             width,
             height,
+            corners: [top_left, top_right, bottom_left, bottom_right],
         }
     }
 
@@ -111,26 +132,7 @@ impl Screen {
     }
 
     pub fn corners(&self) -> [Tuple3D; 4] {
-        let half_width = self.width as f64 / 2.0;
-        let half_height = self.height as f64 / 2.0;
-
-        let top_left = self.coordinate
-            .add(&self.vector_u.scale(-half_width))
-            .add(&self.vector_v.scale(-half_height));
-
-        let top_right = self.coordinate
-            .add(&self.vector_u.scale(half_width))
-            .add(&self.vector_v.scale(-half_height));
-
-        let bottom_left = self.coordinate
-            .add(&self.vector_u.scale(-half_width))
-            .add(&self.vector_v.scale(half_height));
-
-        let bottom_right = self.coordinate
-            .add(&self.vector_u.scale(half_width))
-            .add(&self.vector_v.scale(half_height));
-
-        [top_left, top_right, bottom_left, bottom_right]
+        self.corners
     }
 
     pub fn edge(&self, start: &Tuple3D, end: &Tuple3D) -> [Option<Tuple3D>; 4] {
