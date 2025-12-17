@@ -62,7 +62,7 @@ fn main() {
 
     let pixels = match args.walk_type.as_str() {
         "cube" => cube::walk(args.steps, gradient),
-        "data_walk" => data_walk::walk(args.steps, gradient),
+        "data_walk" => data_walk::walk(args.steps, gradient, args.start_color, args.end_color),
         _ => prime_walk::walk(args.steps, gradient),
     };
 
