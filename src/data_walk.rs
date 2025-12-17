@@ -26,11 +26,11 @@ pub fn walk(_steps: usize, _gradient: ColorGradient, start_color: (u8, u8, u8), 
 
         // Parse X, Y, Z coordinates
         let x = parts[0].trim().parse::<f64>()
-            .expect(&format!("Failed to parse X coordinate: {}", parts[0]));
+            .unwrap_or_else(|_| panic!("Failed to parse X coordinate: {}", parts[0]));
         let y = parts[1].trim().parse::<f64>()
-            .expect(&format!("Failed to parse Y coordinate: {}", parts[1]));
+            .unwrap_or_else(|_| panic!("Failed to parse Y coordinate: {}", parts[1]));
         let z = parts[2].trim().parse::<f64>()
-            .expect(&format!("Failed to parse Z coordinate: {}", parts[2]));
+            .unwrap_or_else(|_| panic!("Failed to parse Z coordinate: {}", parts[2]));
 
         coordinates.push(Tuple3D { x, y, z });
     }
