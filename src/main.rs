@@ -31,7 +31,7 @@ struct Args {
     #[arg(short = 'e', long, value_parser = parse_color, default_value = "0,0,255")]
     end_color: (u8, u8, u8),
 
-    /// Type of walk to generate (prime_walk, cube, or data_walk)
+    /// Type of walk to generate (prime_walk or data_walk)
     #[arg(short = 'w', long, default_value = "prime_walk")]
     walk_type: String,
 }
