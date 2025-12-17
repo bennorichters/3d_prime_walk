@@ -76,7 +76,7 @@ cargo run --release -- --start-color 0,255,0 --end-color 255,0,255
 cargo run --release -- --walk-type data_walk
 
 # Combine multiple options (order doesn't matter!)
-cargo run --release -- --steps 15000 --start-color 255,255,0 --walk-type cube
+cargo run --release -- --steps 15000 --start-color 255,255,0 --walk-type data_walk
 
 # Using short flags
 cargo run --release -- -n 5000 -s 255,0,0 -e 0,255,0 -w prime_walk
@@ -93,7 +93,7 @@ All arguments are optional and can be specified in any order:
 - **--steps, -n**: Number of steps (default: 25,000)
 - **--start-color, -s**: Start color in R,G,B format (default: 255,0,0 - red)
 - **--end-color, -e**: End color in R,G,B format (default: 0,0,255 - blue)
-- **--walk-type, -w**: Type of walk (default: prime_walk, options: prime_walk, cube, data_walk)
+- **--walk-type, -w**: Type of walk (default: prime_walk, options: prime_walk, data_walk)
 
 Colors must be specified as three comma-separated values between 0-255 (e.g., `255,128,0` for orange).
 
