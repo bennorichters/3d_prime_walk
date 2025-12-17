@@ -58,6 +58,11 @@ fn parse_color(s: &str) -> Result<(u8, u8, u8), String> {
 fn main() {
     let args = Args::parse();
 
+    // Warn if steps argument is used with data_walk mode
+    if args.walk_type == "data_walk" && args.steps != DEFAULT_STEPS {
+        eprintln!("Warning: --steps/-n argument is ignored in data_walk mode. The number of points is determined by the data file.");
+    }
+
     let gradient = ColorGradient::new(args.start_color, args.end_color, args.steps);
 
     let pixels = match args.walk_type.as_str() {
