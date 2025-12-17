@@ -77,14 +77,12 @@ impl Screen {
         let u = diff.dot(&self.vector_u) / self.vector_u_dot;
         let v = diff.dot(&self.vector_v) / self.vector_v_dot;
 
-        // Convert to pixel coordinates (coordinate is the center of the plane)
         let half_width = self.width as f64 / 2.0;
         let half_height = self.height as f64 / 2.0;
 
         let pixel_x = (u + half_width).round();
         let pixel_y = (v + half_height).round();
 
-        // Check if within boundaries (after rounding)
         if pixel_x < 0.0
             || pixel_x >= self.width as f64
             || pixel_y < 0.0

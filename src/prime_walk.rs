@@ -42,7 +42,6 @@ pub fn walk(steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     for n in 0..steps {
         if n == (p as usize) {
             dir = dir_it.next().unwrap();
-            // Use a value larger than steps if we run out of primes
             p = primes.next().unwrap_or(steps as u64 + 1);
         }
 
