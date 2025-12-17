@@ -76,7 +76,7 @@ cargo run --release -- --start-color 0,255,0 --end-color 255,0,255
 cargo run --release -- --walk-type data_walk
 
 # Combine multiple options (order doesn't matter!)
-cargo run --release -- --steps 15000 --start-color 255,255,0 --walk-type data_walk
+cargo run --release -- --start-color 255,255,0 --walk-type data_walk
 
 # Using short flags
 cargo run --release -- -n 5000 -s 255,0,0 -e 0,255,0 -w prime_walk
@@ -179,11 +179,11 @@ All scripts generate a file named `data` in the project root directory, which is
 # Run with custom colors on generated data
 cargo run --release -- --walk-type data_walk --start-color 0,255,0 --end-color 255,0,255
 
-# Run with different step count (make sure to match the generator's --steps parameter)
+# Generate data with custom point count
 cd data-scripts
 python3 generate_lissajous.py --steps 50000
 cd ..
-cargo run --release -- --steps 50000 --walk-type data_walk
+cargo run --release -- --walk-type data_walk
 ```
 
 ## Technical Details
