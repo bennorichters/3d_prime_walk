@@ -4,7 +4,7 @@ use crate::{
 };
 use std::fs;
 
-pub fn walk(_steps: usize, _gradient: ColorGradient) -> Vec<Pixel3D> {
+pub fn walk(_steps: usize, mut gradient: ColorGradient) -> Vec<Pixel3D> {
     let mut result = vec![];
 
     // Read the data file
@@ -32,10 +32,13 @@ pub fn walk(_steps: usize, _gradient: ColorGradient) -> Vec<Pixel3D> {
         let z = parts[2].trim().parse::<f64>()
             .expect(&format!("Failed to parse Z coordinate: {}", parts[2]));
 
-        // Create Pixel3D with red color (255, 0, 0)
+        // Get the next color from the gradient
+        let color = gradient.next().unwrap();
+
+        // Create Pixel3D with gradient color
         result.push(Pixel3D {
             coordinate: Tuple3D { x, y, z },
-            color: (255, 0, 0),
+            color,
         });
     }
 
