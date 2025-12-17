@@ -4,9 +4,13 @@ use crate::{
 };
 use std::fs;
 
-pub fn walk(_steps: usize, _gradient: ColorGradient, start_color: (u8, u8, u8), end_color: (u8, u8, u8)) -> Vec<Pixel3D> {
-    let contents = fs::read_to_string("data")
-        .expect("Failed to read data file");
+pub fn walk(
+    _steps: usize,
+    _gradient: ColorGradient,
+    start_color: (u8, u8, u8),
+    end_color: (u8, u8, u8),
+) -> Vec<Pixel3D> {
+    let contents = fs::read_to_string("data").expect("Failed to read data file");
 
     let mut coordinates = vec![];
 
@@ -22,11 +26,17 @@ pub fn walk(_steps: usize, _gradient: ColorGradient, start_color: (u8, u8, u8), 
             continue;
         }
 
-        let x = parts[0].trim().parse::<f64>()
+        let x = parts[0]
+            .trim()
+            .parse::<f64>()
             .unwrap_or_else(|_| panic!("Failed to parse X coordinate: {}", parts[0]));
-        let y = parts[1].trim().parse::<f64>()
+        let y = parts[1]
+            .trim()
+            .parse::<f64>()
             .unwrap_or_else(|_| panic!("Failed to parse Y coordinate: {}", parts[1]));
-        let z = parts[2].trim().parse::<f64>()
+        let z = parts[2]
+            .trim()
+            .parse::<f64>()
             .unwrap_or_else(|_| panic!("Failed to parse Z coordinate: {}", parts[2]));
 
         coordinates.push(Tuple3D { x, y, z });
@@ -38,10 +48,7 @@ pub fn walk(_steps: usize, _gradient: ColorGradient, start_color: (u8, u8, u8), 
     let mut result = vec![];
     for coordinate in coordinates {
         let color = gradient.next().unwrap();
-        result.push(Pixel3D {
-            coordinate,
-            color,
-        });
+        result.push(Pixel3D { coordinate, color });
     }
 
     result
