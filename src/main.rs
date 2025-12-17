@@ -1,4 +1,5 @@
 use crate::color_gradient::ColorGradient;
+use clap::Parser;
 
 mod app;
 mod camera;
@@ -11,53 +12,58 @@ mod space;
 
 pub const SIZE: usize = 800;
 const DEFAULT_STEPS: usize = 25_000;
-const DEFAULT_START_COLOR: (u8, u8, u8) = (255, 0, 0); // Red
-const DEFAULT_END_COLOR: (u8, u8, u8) = (0, 0, 255); // Blue
 const DEFAULT_CAMERA_RADIUS: f64 = 600.0;
 const DEFAULT_FOCAL_LENGTH: f64 = 600.0;
 
-fn parse_color(s: &str) -> Option<(u8, u8, u8)> {
+/// 3D Prime Walk - A mesmerizing visualization of prime numbers in 3D space
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Number of steps to take in the walk
+    #[arg(short = 'n', long, default_value_t = DEFAULT_STEPS)]
+    steps: usize,
+
+    /// Start color in R,G,B format (e.g., "255,0,0" for red)
+    #[arg(short = 's', long, value_parser = parse_color, default_value = "255,0,0")]
+    start_color: (u8, u8, u8),
+
+    /// End color in R,G,B format (e.g., "0,0,255" for blue)
+    #[arg(short = 'e', long, value_parser = parse_color, default_value = "0,0,255")]
+    end_color: (u8, u8, u8),
+
+    /// Type of walk to generate (prime_walk or data_walk)
+    #[arg(short = 'w', long, default_value = "prime_walk")]
+    walk_type: String,
+}
+
+fn parse_color(s: &str) -> Result<(u8, u8, u8), String> {
     let parts: Vec<&str> = s.split(',').collect();
     if parts.len() != 3 {
-        return None;
+        return Err(format!("Color must be in R,G,B format, got: {}", s));
     }
 
-    let r = parts[0].parse::<u8>().ok()?;
-    let g = parts[1].parse::<u8>().ok()?;
-    let b = parts[2].parse::<u8>().ok()?;
+    let r = parts[0]
+        .parse::<u8>()
+        .map_err(|_| format!("Invalid red value: {}", parts[0]))?;
+    let g = parts[1]
+        .parse::<u8>()
+        .map_err(|_| format!("Invalid green value: {}", parts[1]))?;
+    let b = parts[2]
+        .parse::<u8>()
+        .map_err(|_| format!("Invalid blue value: {}", parts[2]))?;
 
-    Some((r, g, b))
+    Ok((r, g, b))
 }
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let args = Args::parse();
 
-    let steps = args
-        .get(1)
-        .and_then(|arg| arg.parse::<usize>().ok())
-        .unwrap_or(DEFAULT_STEPS);
+    let gradient = ColorGradient::new(args.start_color, args.end_color, args.steps);
 
-    let start_color = args
-        .get(2)
-        .and_then(|arg| parse_color(arg))
-        .unwrap_or(DEFAULT_START_COLOR);
-
-    let end_color = args
-        .get(3)
-        .and_then(|arg| parse_color(arg))
-        .unwrap_or(DEFAULT_END_COLOR);
-
-    let walk_mode = args
-        .get(4)
-        .map(|s| s.as_str())
-        .unwrap_or("prime_walk");
-
-    let gradient = ColorGradient::new(start_color, end_color, steps);
-
-    let pixels = match walk_mode {
-        "cube" => cube::walk(steps, gradient),
-        "data_walk" => data_walk::walk(steps, gradient),
-        _ => prime_walk::walk(steps, gradient),
+    let pixels = match args.walk_type.as_str() {
+        "cube" => cube::walk(args.steps, gradient),
+        "data_walk" => data_walk::walk(args.steps, gradient),
+        _ => prime_walk::walk(args.steps, gradient),
     };
 
     app::image(pixels, DEFAULT_CAMERA_RADIUS, DEFAULT_FOCAL_LENGTH);

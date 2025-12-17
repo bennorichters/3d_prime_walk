@@ -63,27 +63,128 @@ This project is written in Rust and requires a Rust toolchain to build.
 
 ### Running the Program
 ```bash
-# Run with defaults (25,000 steps, red to blue gradient)
+# Run with defaults (25,000 steps, red to blue gradient, prime_walk mode)
 cargo run --release
 
 # Run with custom number of steps
-cargo run --release 10000
+cargo run --release -- --steps 10000
 
 # Run with custom gradient colors (format: R,G,B)
-cargo run --release 25000 0,255,0 255,0,255
+cargo run --release -- --start-color 0,255,0 --end-color 255,0,255
 
-# Run with custom steps and start color only (end color uses default blue)
-cargo run --release 15000 255,255,0
+# Run with custom walk type
+cargo run --release -- --walk-type data_walk
+
+# Combine multiple options (order doesn't matter!)
+cargo run --release -- --steps 15000 --start-color 255,255,0 --walk-type data_walk
+
+# Using short flags
+cargo run --release -- -n 5000 -s 255,0,0 -e 0,255,0 -w prime_walk
+
+# Get help
+cargo run --release -- --help
 ```
 
 The `--release` flag is recommended for optimal performance when rendering the visualization.
 
 #### Command-Line Arguments
-- **Argument 1** (optional): Number of steps (default: 25,000)
-- **Argument 2** (optional): Start color in R,G,B format (default: 255,0,0 - red)
-- **Argument 3** (optional): End color in R,G,B format (default: 0,0,255 - blue)
+All arguments are optional and can be specified in any order:
+
+- **--steps, -n**: Number of steps (default: 25,000)
+- **--start-color, -s**: Start color in R,G,B format (default: 255,0,0 - red)
+- **--end-color, -e**: End color in R,G,B format (default: 0,0,255 - blue)
+- **--walk-type, -w**: Type of walk (default: prime_walk)
+  - `prime_walk` - Visualize the distribution of prime numbers in 3D space
+  - `data_walk` - Visualize custom coordinate data (requires data file from `data-scripts/`)
 
 Colors must be specified as three comma-separated values between 0-255 (e.g., `255,128,0` for orange).
+
+### Using Data Walk Mode
+
+The `data_walk` option visualizes custom 3D coordinate data instead of prime numbers. To use this mode, you must first generate a data file using one of the Python scripts in the `data-scripts/` folder.
+
+#### Prerequisites for Data Scripts
+- Python 3.x
+
+#### Available Data Generators
+
+The `data-scripts/` folder contains three coordinate generators:
+
+**1. Lorenz Attractor** (`generate_lorenz.py`)
+
+Generates the famous chaotic Lorenz attractor pattern:
+
+```bash
+cd data-scripts
+python3 generate_lorenz.py
+cd ..
+cargo run --release -- --walk-type data_walk
+```
+
+**2. 3D Lissajous Curves** (`generate_lissajous.py`)
+
+Creates beautiful flowing patterns with configurable frequency ratios and phases:
+
+```bash
+cd data-scripts
+
+# Default pattern (3:4:5 frequencies)
+python3 generate_lissajous.py
+
+# Custom frequency ratio (flowing ribbon pattern)
+python3 generate_lissajous.py --a 1 --b 2 --c 3
+
+# Complex woven structure
+python3 generate_lissajous.py --a 3 --b 5 --c 7
+
+# Adjust amplitude (size)
+python3 generate_lissajous.py --amp 150
+
+# View all options
+python3 generate_lissajous.py --help
+
+cd ..
+cargo run --release -- --walk-type data_walk
+```
+
+**3. Torus Knots** (`generate_torus_knot.py`)
+
+Generates mathematical knots that wrap around a torus:
+
+```bash
+cd data-scripts
+
+# Trefoil knot (default)
+python3 generate_torus_knot.py
+
+# Cinquefoil knot (5-petaled pattern)
+python3 generate_torus_knot.py --p 5 --q 2
+
+# Complex interweaving
+python3 generate_torus_knot.py --p 5 --q 3
+
+# Adjust size
+python3 generate_torus_knot.py --R 150 --r 80
+
+# View all options
+python3 generate_torus_knot.py --help
+
+cd ..
+cargo run --release -- --walk-type data_walk
+```
+
+All scripts generate a file named `data` in the project root directory, which is read by the program when using `--walk-type data_walk`. You can customize colors and other parameters:
+
+```bash
+# Run with custom colors on generated data
+cargo run --release -- --walk-type data_walk --start-color 0,255,0 --end-color 255,0,255
+
+# Run with different step count (make sure to match the generator's --steps parameter)
+cd data-scripts
+python3 generate_lissajous.py --steps 50000
+cd ..
+cargo run --release -- --steps 50000 --walk-type data_walk
+```
 
 ## Technical Details
 
