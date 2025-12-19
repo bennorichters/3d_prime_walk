@@ -72,33 +72,27 @@ impl eframe::App for PrimeWalkApp {
                 needs_update = true;
             }
             if i.key_down(egui::Key::A) {
-                let mut center = *self.orbit.center();
-                if i.modifiers.shift {
-                    center.x += 1.0;
-                } else {
-                    center.x -= 1.0;
-                }
-                self.orbit.set_center(center);
+                let center = *self.orbit.center();
+                let u_vec = self.orbit.get_u_vector();
+                let offset = if i.modifiers.shift { 1.0 } else { -1.0 };
+                let new_center = center.add(&u_vec.scale(offset));
+                self.orbit.set_center(new_center);
                 needs_update = true;
             }
             if i.key_down(egui::Key::S) {
-                let mut center = *self.orbit.center();
-                if i.modifiers.shift {
-                    center.y += 1.0;
-                } else {
-                    center.y -= 1.0;
-                }
-                self.orbit.set_center(center);
+                let center = *self.orbit.center();
+                let v_vec = self.orbit.get_v_vector();
+                let offset = if i.modifiers.shift { 1.0 } else { -1.0 };
+                let new_center = center.add(&v_vec.scale(offset));
+                self.orbit.set_center(new_center);
                 needs_update = true;
             }
             if i.key_down(egui::Key::W) {
-                let mut center = *self.orbit.center();
-                if i.modifiers.shift {
-                    center.z += 1.0;
-                } else {
-                    center.z -= 1.0;
-                }
-                self.orbit.set_center(center);
+                let center = *self.orbit.center();
+                let normal_vec = self.orbit.get_normal_vector();
+                let offset = if i.modifiers.shift { 1.0 } else { -1.0 };
+                let new_center = center.add(&normal_vec.scale(offset));
+                self.orbit.set_center(new_center);
                 needs_update = true;
             }
             if i.key_down(egui::Key::D) {
@@ -150,9 +144,9 @@ impl eframe::App for PrimeWalkApp {
 
             ui.add_space(5.0);
             ui.label("Center Position:");
-            ui.label("  A/Shift+A - X axis");
-            ui.label("  S/Shift+S - Y axis");
-            ui.label("  W/Shift+W - Z axis");
+            ui.label("  A/Shift+A - Screen horizontal (vector_u)");
+            ui.label("  S/Shift+S - Screen vertical (vector_v)");
+            ui.label("  W/Shift+W - Screen normal (toward/away)");
 
             ui.add_space(5.0);
             ui.label("D - Reset to defaults");

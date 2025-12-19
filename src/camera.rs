@@ -505,6 +505,71 @@ impl Orbit {
         }
         self.projection()
     }
+
+    pub fn get_normal_vector(&self) -> Tuple3D {
+        let a = rad(self.azimnuth);
+        let p = rad(self.polar);
+
+        Tuple3D {
+            x: a.sin() * p.cos(),
+            y: p.sin(),
+            z: a.cos() * p.cos(),
+        }
+    }
+
+    pub fn get_u_vector(&self) -> Tuple3D {
+        let a = rad(self.azimnuth);
+        let p = rad(self.polar);
+        let r = rad(self.rotation);
+
+        let u_base = Tuple3D {
+            x: a.cos(),
+            y: 0.0,
+            z: -a.sin(),
+        };
+
+        let v_base = Tuple3D {
+            x: -a.sin() * p.sin(),
+            y: p.cos(),
+            z: -a.cos() * p.sin(),
+        };
+
+        let cos_r = r.cos();
+        let sin_r = r.sin();
+
+        Tuple3D {
+            x: cos_r * u_base.x - sin_r * v_base.x,
+            y: cos_r * u_base.y - sin_r * v_base.y,
+            z: cos_r * u_base.z - sin_r * v_base.z,
+        }
+    }
+
+    pub fn get_v_vector(&self) -> Tuple3D {
+        let a = rad(self.azimnuth);
+        let p = rad(self.polar);
+        let r = rad(self.rotation);
+
+        let u_base = Tuple3D {
+            x: a.cos(),
+            y: 0.0,
+            z: -a.sin(),
+        };
+
+        let v_base = Tuple3D {
+            x: -a.sin() * p.sin(),
+            y: p.cos(),
+            z: -a.cos() * p.sin(),
+        };
+
+        let cos_r = r.cos();
+        let sin_r = r.sin();
+
+        Tuple3D {
+            x: sin_r * u_base.x + cos_r * v_base.x,
+            y: sin_r * u_base.y + cos_r * v_base.y,
+            z: sin_r * u_base.z + cos_r * v_base.z,
+        }
+    }
 }
 
 #[cfg(test)]
