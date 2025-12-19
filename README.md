@@ -26,7 +26,7 @@ Each step along the path is colored according to a gradient that transitions fro
 ![3D Prime Walk Animation](assets/animated.gif)
 
 The program projects the 3D walk onto a 2D screen using a sophisticated camera system with proper depth sorting, ensuring that closer points appear in front of more distant ones. The resulting image can be freely manipulated, allowing you to orbit around the structure and examine it from any angle.
-
+75
 ## Interactive Controls
 
 The visualization is fully interactive, giving you complete control over the camera:
@@ -120,6 +120,8 @@ python3 generate_lorenz.py
 cd ..
 cargo run --release -- --walk-type data_walk
 ```
+
+![3D Prime Walk Screenshot](assets/screenshot_02.png)
 
 **2. 3D Lissajous Curves** (`generate_lissajous.py`)
 
